@@ -92,7 +92,6 @@ fn test_openssl_compatibility_notes() {
     //    - Outputs are identical across implementations
 
     // This is a documentation test, not an actual test
-    assert!(true);
 }
 
 /// Document how to interoperate with Web Crypto API (JavaScript)
@@ -117,7 +116,6 @@ fn test_web_crypto_compatibility_notes() {
     //    - Include nonce, ciphertext, and tag explicitly
 
     // This is a documentation test
-    assert!(true);
 }
 
 /// Document CryptoJS migration path
@@ -144,6 +142,4 @@ fn test_cryptojs_migration_notes() {
     //    - Migration: Always generate random salts
 
     // See docs/MIGRATE_CRYPTOJS.md for detailed guide
-
-    assert!(true);
 }

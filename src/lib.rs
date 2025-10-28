@@ -160,7 +160,8 @@ mod tests {
 
     #[test]
     fn test_version() {
-        assert!(!VERSION.is_empty());
+        // Just verify the version string exists and has expected format
+        assert!(VERSION.starts_with("0."));
     }
 
     #[test]

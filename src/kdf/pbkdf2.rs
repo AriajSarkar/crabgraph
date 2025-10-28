@@ -131,7 +131,6 @@ pub fn pbkdf2_derive(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use hex_literal::hex;
 
     #[test]
     fn test_pbkdf2_sha256_basic() {

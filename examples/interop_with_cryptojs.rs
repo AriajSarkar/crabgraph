@@ -5,7 +5,7 @@
 
 use crabgraph::{
     aead::{AesGcm256, CrabAead},
-    encoding::{base64_decode, base64_encode},
+    encoding::base64_encode,
     kdf::pbkdf2_derive_sha256,
     CrabResult,
 };

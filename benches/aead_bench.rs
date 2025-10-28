@@ -1,7 +1,4 @@
-use crabgraph::{
-    aead::{AesGcm256, ChaCha20Poly1305, CrabAead},
-    CrabResult,
-};
+use crabgraph::aead::{AesGcm256, ChaCha20Poly1305, CrabAead};
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 
 fn aead_benchmarks(c: &mut Criterion) {
