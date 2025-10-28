@@ -8,6 +8,7 @@ description = "A safe, ergonomic, high-performance cryptographic library for Rus
 readme = "README.md"
 homepage = "https://github.com/AriajSarkar/crabgraph"
 repository = "https://github.com/AriajSarkar/crabgraph"
+documentation = "https://docs.rs/crabgraph"
 license = "MIT OR Apache-2.0"
 keywords = ["cryptography", "crypto", "encryption", "security", "authentication"]
 categories = ["cryptography", "authentication", "encoding", "no-std"]
