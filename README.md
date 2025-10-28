@@ -2,7 +2,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/crabgraph.svg)](https://crates.io/crates/crabgraph)
 [![Documentation](https://docs.rs/crabgraph/badge.svg)](https://docs.rs/crabgraph)
-[![Build Status](https://github.com/rajsarkar/crabgraph/workflows/CI/badge.svg)](https://github.com/rajsarkar/crabgraph/actions)
+[![Build Status](https://github.com/AriajSarkar/crabgraph/workflows/CI/badge.svg)](https://github.com/AriajSarkar/crabgraph/actions)
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE-MIT)
 
 A **safe**, **ergonomic**, and **high-performance** cryptographic library for Rust, built on top of audited primitives from the RustCrypto ecosystem and other trusted sources.
