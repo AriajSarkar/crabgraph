@@ -2,6 +2,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/crabgraph.svg)](https://crates.io/crates/crabgraph)
 [![Documentation](https://docs.rs/crabgraph/badge.svg)](https://docs.rs/crabgraph)
+[![GitHub Pages Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://ariajsarkar.github.io/crabgraph/crabgraph/)
 [![Build Status](https://github.com/AriajSarkar/crabgraph/workflows/CI/badge.svg)](https://github.com/AriajSarkar/crabgraph/actions)
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE-MIT)
 
