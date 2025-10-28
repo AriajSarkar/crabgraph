@@ -11,6 +11,8 @@ A **safe**, **ergonomic**, and **high-performance** cryptographic library for Ru
 
 **This library is NOT yet audited by third-party cryptographic experts. While it uses audited primitives (RustCrypto, dalek-cryptography), mistakes in composition can still lead to vulnerabilities. DO NOT use in production without a professional security audit.**
 
+**Note**: The optional `rsa-support` feature has a known vulnerability (RUSTSEC-2023-0071 - Marvin timing attack). Use Ed25519/X25519 instead.
+
 For security issues, please see [SECURITY.md](SECURITY.md).
 
 ## ✨ Features

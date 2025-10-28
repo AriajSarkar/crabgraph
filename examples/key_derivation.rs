@@ -2,9 +2,8 @@
 
 use crabgraph::{
     kdf::{
-        argon2_derive, argon2_derive_with_params, Argon2Params,
-        pbkdf2_derive_sha256, PBKDF2_SHA256_RECOMMENDED_ITERATIONS,
-        hkdf_extract_expand,
+        argon2_derive, argon2_derive_with_params, hkdf_extract_expand, pbkdf2_derive_sha256,
+        Argon2Params, PBKDF2_SHA256_RECOMMENDED_ITERATIONS,
     },
     rand::secure_bytes,
     CrabResult,
@@ -69,23 +68,13 @@ fn pbkdf2_example() -> CrabResult<()> {
     println!("  Using {} iterations", PBKDF2_SHA256_RECOMMENDED_ITERATIONS);
 
     // Derive 256-bit key
-    let key = pbkdf2_derive_sha256(
-        password,
-        &salt,
-        PBKDF2_SHA256_RECOMMENDED_ITERATIONS,
-        32,
-    )?;
+    let key = pbkdf2_derive_sha256(password, &salt, PBKDF2_SHA256_RECOMMENDED_ITERATIONS, 32)?;
 
     println!("  Derived key: {} bytes", key.len());
     println!("  Key (hex): {}...", hex::encode(&key.as_slice()[..8]));
 
     // PBKDF2 is deterministic
-    let key2 = pbkdf2_derive_sha256(
-        password,
-        &salt,
-        PBKDF2_SHA256_RECOMMENDED_ITERATIONS,
-        32,
-    )?;
+    let key2 = pbkdf2_derive_sha256(password, &salt, PBKDF2_SHA256_RECOMMENDED_ITERATIONS, 32)?;
 
     assert_eq!(key.as_slice(), key2.as_slice());
     println!("  ✓ PBKDF2 is deterministic");
@@ -99,19 +88,9 @@ fn hkdf_example() -> CrabResult<()> {
     println!("  Shared secret: {} bytes", shared_secret.len());
 
     // Derive multiple keys for different purposes
-    let encryption_key = hkdf_extract_expand(
-        b"app_v1_salt",
-        &shared_secret,
-        b"encryption",
-        32,
-    )?;
+    let encryption_key = hkdf_extract_expand(b"app_v1_salt", &shared_secret, b"encryption", 32)?;
 
-    let mac_key = hkdf_extract_expand(
-        b"app_v1_salt",
-        &shared_secret,
-        b"authentication",
-        32,
-    )?;
+    let mac_key = hkdf_extract_expand(b"app_v1_salt", &shared_secret, b"authentication", 32)?;
 
     println!("  Encryption key: {} bytes", encryption_key.len());
     println!("  MAC key: {} bytes", mac_key.len());
@@ -138,7 +117,11 @@ fn argon2_custom_params() -> CrabResult<()> {
     // Compare with interactive parameters
     let interactive_params = Argon2Params::interactive();
     println!("\n  Interactive parameters:");
-    println!("  Memory cost: {} KiB ({} MiB)", interactive_params.memory_cost, interactive_params.memory_cost / 1024);
+    println!(
+        "  Memory cost: {} KiB ({} MiB)",
+        interactive_params.memory_cost,
+        interactive_params.memory_cost / 1024
+    );
     println!("  Time cost: {}", interactive_params.time_cost);
 
     Ok(())

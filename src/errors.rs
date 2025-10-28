@@ -145,10 +145,7 @@ mod tests {
         assert_eq!(err.to_string(), "Invalid input: Key too short");
 
         let auth_err = CrabError::AuthenticationFailed;
-        assert_eq!(
-            auth_err.to_string(),
-            "Authentication failed: invalid tag or corrupted data"
-        );
+        assert_eq!(auth_err.to_string(), "Authentication failed: invalid tag or corrupted data");
     }
 
     #[test]

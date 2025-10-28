@@ -100,8 +100,7 @@ pub fn hex_encode(data: &[u8]) -> String {
 /// assert_eq!(decoded, b"\x01\x02\xff");
 /// ```
 pub fn hex_decode(data: &str) -> CrabResult<Vec<u8>> {
-    hex::decode(data)
-        .map_err(|e| CrabError::encoding_error(format!("Hex decode failed: {}", e)))
+    hex::decode(data).map_err(|e| CrabError::encoding_error(format!("Hex decode failed: {}", e)))
 }
 
 #[cfg(test)]

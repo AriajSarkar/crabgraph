@@ -53,8 +53,9 @@ pub fn secure_bytes(len: usize) -> CrabResult<Vec<u8>> {
 /// assert_ne!(key, [0u8; 32]); // Should be random
 /// ```
 pub fn fill_secure_bytes(buf: &mut [u8]) -> CrabResult<()> {
-    getrandom::getrandom(buf)
-        .map_err(|e| CrabError::random_error(format!("Failed to fill buffer with random bytes: {}", e)))?;
+    getrandom::getrandom(buf).map_err(|e| {
+        CrabError::random_error(format!("Failed to fill buffer with random bytes: {}", e))
+    })?;
     Ok(())
 }
 

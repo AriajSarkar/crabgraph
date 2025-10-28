@@ -87,7 +87,11 @@ impl CrabAead for ChaCha20Poly1305 {
         self.encrypt_with_nonce(plaintext, &nonce_bytes, associated_data)
     }
 
-    fn decrypt(&self, ciphertext: &Ciphertext, associated_data: Option<&[u8]>) -> CrabResult<Vec<u8>> {
+    fn decrypt(
+        &self,
+        ciphertext: &Ciphertext,
+        associated_data: Option<&[u8]>,
+    ) -> CrabResult<Vec<u8>> {
         if ciphertext.nonce.len() != Self::NONCE_SIZE {
             return Err(CrabError::InvalidNonce(format!(
                 "Expected {}-byte nonce, got {}",
@@ -96,7 +100,10 @@ impl CrabAead for ChaCha20Poly1305 {
             )));
         }
 
-        let nonce_array: [u8; 12] = ciphertext.nonce.as_slice().try_into()
+        let nonce_array: [u8; 12] = ciphertext
+            .nonce
+            .as_slice()
+            .try_into()
             .map_err(|_| CrabError::InvalidNonce("Invalid nonce length".to_string()))?;
         let nonce = Nonce::from(nonce_array);
 
@@ -128,7 +135,8 @@ impl CrabAead for ChaCha20Poly1305 {
             )));
         }
 
-        let nonce_array: [u8; 12] = nonce.try_into()
+        let nonce_array: [u8; 12] = nonce
+            .try_into()
             .map_err(|_| CrabError::InvalidNonce("Invalid nonce length".to_string()))?;
         let nonce_obj = Nonce::from(nonce_array);
         let payload = Payload {
@@ -217,10 +225,10 @@ mod tests {
         let key = hex!("808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f");
         let nonce = hex!("070000004041424344454647");
         let plaintext = b"Ladies and Gentlemen of the class of '99: If I could offer you only one tip for the future, sunscreen would be it.";
-        
+
         let cipher = ChaCha20Poly1305::new(&key).unwrap();
         let ciphertext = cipher.encrypt_with_nonce(plaintext, &nonce, Some(b"")).unwrap();
-        
+
         // Verify we can decrypt
         let decrypted = cipher.decrypt(&ciphertext, Some(b"")).unwrap();
         assert_eq!(decrypted, plaintext);

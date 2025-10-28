@@ -43,7 +43,6 @@ type_punctuation_density = "Wide"
 reorder_imports = true
 reorder_modules = true
 remove_nested_parens = true
-edition = "2021"
 format_code_in_doc_comments = true
 format_macro_matchers = true
 format_macro_bodies = true

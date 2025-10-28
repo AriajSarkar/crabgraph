@@ -3,9 +3,9 @@
 use crabgraph::{
     aead::{AesGcm256, ChaCha20Poly1305, CrabAead},
     asym::{Ed25519KeyPair, X25519KeyPair},
+    hash::sha256,
     kdf::{argon2_derive, pbkdf2_derive_sha256},
     mac::{hmac_sha256, hmac_sha256_verify},
-    hash::sha256,
     CrabResult,
 };
 
@@ -119,7 +119,7 @@ fn test_hmac_with_derived_key() -> CrabResult<()> {
 fn test_hash_chain() -> CrabResult<()> {
     // Create a simple hash chain
     let mut current = sha256(b"genesis");
-    
+
     for i in 0..10 {
         let data = format!("block_{}", i);
         let mut combined = current.to_vec();
@@ -157,7 +157,7 @@ fn test_multi_recipient_encryption() -> CrabResult<()> {
     for recipient in &recipients {
         let shared = sender.diffie_hellman(&recipient.public_key())?;
         let key = shared.derive_key(b"broadcast", 32)?;
-        
+
         let cipher = AesGcm256::new(key.as_slice())?;
         let ciphertext = cipher.encrypt(message, None)?;
 

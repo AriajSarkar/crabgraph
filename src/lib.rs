@@ -100,25 +100,25 @@
 #![warn(rust_2018_idioms)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub mod errors;
 pub mod aead;
-pub mod hash;
-pub mod mac;
-pub mod kdf;
 pub mod asym;
+pub mod encoding;
+pub mod errors;
+pub mod hash;
+pub mod kdf;
+pub mod mac;
 pub mod rand;
 pub mod secrets;
-pub mod encoding;
 pub mod utils;
 
 // Re-export commonly used types
-pub use errors::{CrabError, CrabResult};
-pub use aead::{AesGcm256, ChaCha20Poly1305, CrabAead, Ciphertext};
-pub use hash::{sha256, sha512};
-pub use mac::{hmac_sha256, hmac_sha256_verify};
-pub use kdf::{argon2_derive, pbkdf2_derive, hkdf_extract_expand};
+pub use aead::{AesGcm256, ChaCha20Poly1305, Ciphertext, CrabAead};
 pub use asym::{Ed25519KeyPair, X25519KeyPair};
-pub use secrets::{SecretVec, SecretArray};
+pub use errors::{CrabError, CrabResult};
+pub use hash::{sha256, sha512};
+pub use kdf::{argon2_derive, hkdf_extract_expand, pbkdf2_derive};
+pub use mac::{hmac_sha256, hmac_sha256_verify};
+pub use secrets::{SecretArray, SecretVec};
 
 /// Library version.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -136,22 +136,21 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// ```
 pub mod prelude {
     pub use crate::{
-        CrabError, CrabResult,
-        aead::{AesGcm256, AesGcm128, ChaCha20Poly1305, CrabAead, Ciphertext},
-        hash::{sha256, sha512, sha256_hex, sha512_hex},
-        mac::{hmac_sha256, hmac_sha256_verify, hmac_sha512, hmac_sha512_verify},
-        kdf::{
-            argon2_derive, argon2_derive_with_params, Argon2Params,
-            pbkdf2_derive, pbkdf2_derive_sha256, pbkdf2_derive_sha512,
-            hkdf_extract_expand, hkdf_sha256,
-        },
+        aead::{AesGcm128, AesGcm256, ChaCha20Poly1305, Ciphertext, CrabAead},
         asym::{
-            Ed25519KeyPair, Ed25519PublicKey, Ed25519Signature,
-            X25519KeyPair, X25519PublicKey, X25519SharedSecret,
+            Ed25519KeyPair, Ed25519PublicKey, Ed25519Signature, X25519KeyPair, X25519PublicKey,
+            X25519SharedSecret,
         },
-        rand::{secure_bytes, generate_key_256},
-        secrets::{SecretVec, SecretArray},
-        encoding::{base64_encode, base64_decode, hex_encode, hex_decode},
+        encoding::{base64_decode, base64_encode, hex_decode, hex_encode},
+        hash::{sha256, sha256_hex, sha512, sha512_hex},
+        kdf::{
+            argon2_derive, argon2_derive_with_params, hkdf_extract_expand, hkdf_sha256,
+            pbkdf2_derive, pbkdf2_derive_sha256, pbkdf2_derive_sha512, Argon2Params,
+        },
+        mac::{hmac_sha256, hmac_sha256_verify, hmac_sha512, hmac_sha512_verify},
+        rand::{generate_key_256, secure_bytes},
+        secrets::{SecretArray, SecretVec},
+        CrabError, CrabResult,
     };
 }
 
@@ -167,25 +166,25 @@ mod tests {
     #[test]
     fn test_full_workflow() {
         // Test a complete workflow: key derivation -> encryption -> signing
-        
+
         // 1. Derive a key from password
         let password = b"my_secret_password";
         let salt = rand::secure_bytes(16).unwrap();
         let key_material = kdf::pbkdf2_derive(password, &salt, 10_000, 32).unwrap();
-        
+
         // 2. Encrypt data
         let cipher = AesGcm256::new(key_material.as_slice()).unwrap();
         let plaintext = b"Sensitive data";
         let ciphertext = cipher.encrypt(plaintext, None).unwrap();
-        
+
         // 3. Decrypt
         let decrypted = cipher.decrypt(&ciphertext, None).unwrap();
         assert_eq!(decrypted, plaintext);
-        
+
         // 4. Sign the ciphertext
         let keypair = Ed25519KeyPair::generate().unwrap();
         let signature = keypair.sign(&ciphertext.to_bytes());
-        
+
         // 5. Verify signature
         assert!(keypair.verify(&ciphertext.to_bytes(), &signature).unwrap());
     }
@@ -193,27 +192,27 @@ mod tests {
     #[test]
     fn test_key_exchange_with_encryption() {
         // Simulate Alice and Bob doing key exchange and encrypting messages
-        
+
         // Key exchange
         let alice = X25519KeyPair::generate().unwrap();
         let bob = X25519KeyPair::generate().unwrap();
-        
+
         let alice_shared = alice.diffie_hellman(&bob.public_key()).unwrap();
         let bob_shared = bob.diffie_hellman(&alice.public_key()).unwrap();
-        
+
         // Derive encryption key
         let alice_key = alice_shared.derive_key(b"chat_app_v1", 32).unwrap();
         let bob_key = bob_shared.derive_key(b"chat_app_v1", 32).unwrap();
-        
+
         // Alice encrypts
         let alice_cipher = AesGcm256::new(alice_key.as_slice()).unwrap();
         let message = b"Hello Bob!";
         let ciphertext = alice_cipher.encrypt(message, None).unwrap();
-        
+
         // Bob decrypts
         let bob_cipher = AesGcm256::new(bob_key.as_slice()).unwrap();
         let decrypted = bob_cipher.decrypt(&ciphertext, None).unwrap();
-        
+
         assert_eq!(decrypted, message);
     }
 }

@@ -1,7 +1,7 @@
 //! Generic AEAD trait for authenticated encryption operations.
 
-use crate::errors::CrabResult;
 use crate::aead::Ciphertext;
+use crate::errors::CrabResult;
 
 /// Trait for Authenticated Encryption with Associated Data (AEAD) operations.
 ///
@@ -40,7 +40,11 @@ pub trait CrabAead {
     /// - The authentication tag is invalid
     /// - The ciphertext was tampered with
     /// - The associated data doesn't match
-    fn decrypt(&self, ciphertext: &Ciphertext, associated_data: Option<&[u8]>) -> CrabResult<Vec<u8>>;
+    fn decrypt(
+        &self,
+        ciphertext: &Ciphertext,
+        associated_data: Option<&[u8]>,
+    ) -> CrabResult<Vec<u8>>;
 
     /// Encrypts plaintext with an explicit nonce (advanced use only).
     ///

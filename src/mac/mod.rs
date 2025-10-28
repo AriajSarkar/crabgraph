@@ -147,7 +147,7 @@ mod tests {
         let key = b"Jefe";
         let message = b"what do ya want for nothing?";
         let expected = hex!("5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843");
-        
+
         let tag = hmac_sha256(key, message).unwrap();
         assert_eq!(tag, expected);
     }
@@ -170,10 +170,10 @@ mod tests {
     fn test_hmac_deterministic() {
         let key = b"consistent_key";
         let message = b"consistent_message";
-        
+
         let tag1 = hmac_sha256(key, message).unwrap();
         let tag2 = hmac_sha256(key, message).unwrap();
-        
+
         assert_eq!(tag1, tag2);
     }
 }

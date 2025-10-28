@@ -56,9 +56,7 @@ pub fn pbkdf2_derive_sha256(
     key_len: usize,
 ) -> CrabResult<SecretVec> {
     if salt.len() < 8 {
-        return Err(CrabError::invalid_input(
-            "Salt should be at least 8 bytes (16+ recommended)",
-        ));
+        return Err(CrabError::invalid_input("Salt should be at least 8 bytes (16+ recommended)"));
     }
 
     if iterations < 10_000 {
@@ -103,9 +101,7 @@ pub fn pbkdf2_derive_sha512(
     key_len: usize,
 ) -> CrabResult<SecretVec> {
     if salt.len() < 8 {
-        return Err(CrabError::invalid_input(
-            "Salt should be at least 8 bytes (16+ recommended)",
-        ));
+        return Err(CrabError::invalid_input("Salt should be at least 8 bytes (16+ recommended)"));
     }
 
     if iterations < 10_000 {
@@ -149,30 +145,30 @@ mod tests {
     fn test_pbkdf2_sha256_deterministic() {
         let password = b"test_password";
         let salt = b"test_salt_16byte";
-        
+
         let key1 = pbkdf2_derive_sha256(password, salt, 10_000, 32).unwrap();
         let key2 = pbkdf2_derive_sha256(password, salt, 10_000, 32).unwrap();
-        
+
         assert_eq!(key1.as_slice(), key2.as_slice());
     }
 
     #[test]
     fn test_pbkdf2_sha256_different_passwords() {
         let salt = b"same_salt_16byte";
-        
+
         let key1 = pbkdf2_derive_sha256(b"password1", salt, 10_000, 32).unwrap();
         let key2 = pbkdf2_derive_sha256(b"password2", salt, 10_000, 32).unwrap();
-        
+
         assert_ne!(key1.as_slice(), key2.as_slice());
     }
 
     #[test]
     fn test_pbkdf2_sha256_different_salts() {
         let password = b"same_password";
-        
+
         let key1 = pbkdf2_derive_sha256(password, b"salt1_16bytes!!!", 10_000, 32).unwrap();
         let key2 = pbkdf2_derive_sha256(password, b"salt2_16bytes!!!", 10_000, 32).unwrap();
-        
+
         assert_ne!(key1.as_slice(), key2.as_slice());
     }
 
@@ -202,12 +198,12 @@ mod tests {
         let password = b"password";
         let salt = b"salt";
         let iterations = 1; // Note: This is just for testing, too low for real use
-        
+
         // We need to allow low iterations for RFC test vector
         // So we'll use the underlying function directly
         let mut output = [0u8; 20];
         pbkdf2_hmac::<Sha256>(password, salt, iterations, &mut output);
-        
+
         // Expected: 120fb6cffcf8b32c43e7225256c4f837a86548c9 (for HMAC-SHA1)
         // For HMAC-SHA256, the output will be different
         // Main point: verify it doesn't panic and produces consistent output

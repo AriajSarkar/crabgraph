@@ -5,8 +5,8 @@
 
 use crabgraph::{
     aead::{AesGcm256, CrabAead},
+    encoding::{base64_decode, base64_encode},
     kdf::pbkdf2_derive_sha256,
-    encoding::{base64_encode, base64_decode},
     CrabResult,
 };
 
@@ -34,7 +34,7 @@ fn password_based_encryption_example() -> CrabResult<()> {
 
     // Generate salt (CryptoJS uses 8-byte salt by default, but we use 16 for better security)
     let salt = crabgraph::rand::secure_bytes(16)?;
-    
+
     println!("  Password: {}", String::from_utf8_lossy(password));
     println!("  Salt: {}", base64_encode(&salt));
 

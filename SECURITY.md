@@ -79,6 +79,21 @@ When using CrabGraph:
 3. **No key rotation helpers**: Applications must implement their own key management
 4. **Limited post-quantum support**: No post-quantum cryptographic algorithms included yet
 
+## Known Vulnerabilities
+
+### RSA Marvin Attack (RUSTSEC-2023-0071)
+- **Affected**: Optional `rsa` feature (when enabled)
+- **Severity**: Medium (CVSS 5.9)
+- **Issue**: Potential key recovery through timing side-channels (Marvin Attack)
+- **Status**: No fix available upstream as of October 2025
+- **Mitigation**: 
+  - RSA support is **optional** and not enabled by default
+  - Consider using Ed25519 for signatures and X25519 for key exchange instead
+  - If RSA is required, be aware of the timing attack risk in padding oracle scenarios
+- **Reference**: https://rustsec.org/advisories/RUSTSEC-2023-0071
+
+**Recommendation**: Do not enable the `rsa-support` feature unless absolutely necessary. Use the default Ed25519/X25519 algorithms which are not affected.
+
 ## Dependencies
 
 CrabGraph relies on these cryptographic libraries:

@@ -82,7 +82,7 @@ mod tests {
         let ikm = b"input_key_material";
         let salt = b"salt";
         let info = b"info";
-        
+
         let key = hkdf_extract_expand(salt, ikm, info, 32).unwrap();
         assert_eq!(key.len(), 32);
     }
@@ -92,10 +92,10 @@ mod tests {
         let ikm = b"input_key_material";
         let salt = b"salt";
         let info = b"info";
-        
+
         let key1 = hkdf_extract_expand(salt, ikm, info, 32).unwrap();
         let key2 = hkdf_extract_expand(salt, ikm, info, 32).unwrap();
-        
+
         assert_eq!(key1.as_slice(), key2.as_slice());
     }
 
@@ -103,10 +103,10 @@ mod tests {
     fn test_hkdf_different_ikm() {
         let salt = b"salt";
         let info = b"info";
-        
+
         let key1 = hkdf_extract_expand(salt, b"ikm1", info, 32).unwrap();
         let key2 = hkdf_extract_expand(salt, b"ikm2", info, 32).unwrap();
-        
+
         assert_ne!(key1.as_slice(), key2.as_slice());
     }
 
@@ -114,10 +114,10 @@ mod tests {
     fn test_hkdf_different_info() {
         let ikm = b"input_key_material";
         let salt = b"salt";
-        
+
         let key1 = hkdf_extract_expand(salt, ikm, b"info1", 32).unwrap();
         let key2 = hkdf_extract_expand(salt, ikm, b"info2", 32).unwrap();
-        
+
         assert_ne!(key1.as_slice(), key2.as_slice());
     }
 
@@ -125,7 +125,7 @@ mod tests {
     fn test_hkdf_no_salt() {
         let ikm = b"input_key_material";
         let info = b"info";
-        
+
         let key = hkdf_extract_expand(&[], ikm, info, 32).unwrap();
         assert_eq!(key.len(), 32);
     }
@@ -134,7 +134,7 @@ mod tests {
     fn test_hkdf_no_info() {
         let ikm = b"input_key_material";
         let salt = b"salt";
-        
+
         let key = hkdf_extract_expand(salt, ikm, &[], 32).unwrap();
         assert_eq!(key.len(), 32);
     }
@@ -149,11 +149,11 @@ mod tests {
     #[test]
     fn test_hkdf_variable_length() {
         let ikm = b"input_key_material";
-        
+
         let key16 = hkdf_sha256(ikm, 16).unwrap();
         let key32 = hkdf_sha256(ikm, 32).unwrap();
         let key64 = hkdf_sha256(ikm, 64).unwrap();
-        
+
         assert_eq!(key16.len(), 16);
         assert_eq!(key32.len(), 32);
         assert_eq!(key64.len(), 64);
@@ -166,7 +166,7 @@ mod tests {
         let salt = hex!("000102030405060708090a0b0c");
         let info = hex!("f0f1f2f3f4f5f6f7f8f9");
         let expected = hex!("3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf");
-        
+
         let key = hkdf_extract_expand(&salt, &ikm, &info, 32).unwrap();
         assert_eq!(key.as_slice(), &expected[..]);
     }
@@ -174,7 +174,7 @@ mod tests {
     #[test]
     fn test_hkdf_max_output_length() {
         let ikm = b"input_key_material";
-        
+
         // SHA-256 allows up to 255 * 32 = 8160 bytes
         let key = hkdf_sha256(ikm, 255 * 32).unwrap();
         assert_eq!(key.len(), 255 * 32);
@@ -183,11 +183,11 @@ mod tests {
     #[test]
     fn test_hkdf_invalid_output_length() {
         let ikm = b"input_key_material";
-        
+
         // Too long
         let result = hkdf_sha256(ikm, 255 * 32 + 1);
         assert!(result.is_err());
-        
+
         // Zero
         let result = hkdf_sha256(ikm, 0);
         assert!(result.is_err());

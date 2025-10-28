@@ -245,10 +245,7 @@ mod tests {
         let keypair2 = X25519KeyPair::from_secret_bytes(secret).unwrap();
 
         // Same secret should produce same public key
-        assert_eq!(
-            keypair1.public_key().as_bytes(),
-            keypair2.public_key().as_bytes()
-        );
+        assert_eq!(keypair1.public_key().as_bytes(), keypair2.public_key().as_bytes());
     }
 
     #[test]

@@ -5,8 +5,8 @@
 
 use crate::errors::{CrabError, CrabResult};
 use ed25519_dalek::{
-    Signature, Signer, SigningKey, Verifier, VerifyingKey,
-    SECRET_KEY_LENGTH, PUBLIC_KEY_LENGTH, SIGNATURE_LENGTH,
+    Signature, Signer, SigningKey, Verifier, VerifyingKey, PUBLIC_KEY_LENGTH, SECRET_KEY_LENGTH,
+    SIGNATURE_LENGTH,
 };
 use rand_core::OsRng;
 
@@ -73,9 +73,8 @@ impl Ed25519PublicKey {
             )));
         }
 
-        let key = VerifyingKey::from_bytes(
-            bytes.try_into().expect("length already checked")
-        ).map_err(|e| CrabError::key_error(format!("Invalid Ed25519 public key: {}", e)))?;
+        let key = VerifyingKey::from_bytes(bytes.try_into().expect("length already checked"))
+            .map_err(|e| CrabError::key_error(format!("Invalid Ed25519 public key: {}", e)))?;
 
         Ok(Self(key))
     }
@@ -149,9 +148,8 @@ impl Ed25519KeyPair {
             )));
         }
 
-        let signing_key = SigningKey::from_bytes(
-            secret.try_into().expect("length already checked")
-        );
+        let signing_key =
+            SigningKey::from_bytes(secret.try_into().expect("length already checked"));
 
         Ok(Self { signing_key })
     }
@@ -189,12 +187,12 @@ impl Ed25519KeyPair {
     /// This performs an extra verification step to ensure the signature is valid.
     pub fn sign_with_verification(&self, message: &[u8]) -> CrabResult<Ed25519Signature> {
         let signature = self.sign(message);
-        
+
         // Verify immediately
         if !self.verify(message, &signature)? {
             return Err(CrabError::Internal("Signature verification failed after signing".into()));
         }
-        
+
         Ok(signature)
     }
 
@@ -253,14 +251,11 @@ mod tests {
     fn test_ed25519_from_secret_bytes() {
         let keypair1 = Ed25519KeyPair::generate().unwrap();
         let secret = keypair1.secret_bytes();
-        
+
         let keypair2 = Ed25519KeyPair::from_secret_bytes(secret).unwrap();
-        
+
         // Same secret should produce same public key
-        assert_eq!(
-            keypair1.public_key().as_bytes(),
-            keypair2.public_key().as_bytes()
-        );
+        assert_eq!(keypair1.public_key().as_bytes(), keypair2.public_key().as_bytes());
     }
 
     #[test]

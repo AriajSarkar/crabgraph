@@ -6,9 +6,7 @@
 
 use crate::errors::{CrabError, CrabResult};
 use crate::secrets::SecretVec;
-use argon2::{
-    Algorithm, Argon2, Params, Version,
-};
+use argon2::{Algorithm, Argon2, Params, Version};
 
 /// Argon2 parameters configuration.
 ///
@@ -33,7 +31,7 @@ impl Default for Argon2Params {
     /// - 4 parallel threads
     fn default() -> Self {
         Self {
-            memory_cost: 65536,  // 64 MiB
+            memory_cost: 65536, // 64 MiB
             time_cost: 3,
             parallelism: 4,
         }
@@ -53,7 +51,7 @@ impl Argon2Params {
     /// Slower but provides maximum protection (~1-2 seconds).
     pub fn high_security() -> Self {
         Self {
-            memory_cost: 262144,  // 256 MiB
+            memory_cost: 262144, // 256 MiB
             time_cost: 5,
             parallelism: 4,
         }
@@ -64,7 +62,7 @@ impl Argon2Params {
     /// Suitable for embedded systems or constrained environments.
     pub fn low_memory() -> Self {
         Self {
-            memory_cost: 32768,  // 32 MiB
+            memory_cost: 32768, // 32 MiB
             time_cost: 4,
             parallelism: 2,
         }
@@ -127,24 +125,16 @@ pub fn argon2_derive_with_params(
     params: &Argon2Params,
 ) -> CrabResult<SecretVec> {
     if salt.len() < 16 {
-        return Err(CrabError::invalid_input(
-            "Argon2 requires salt of at least 16 bytes",
-        ));
+        return Err(CrabError::invalid_input("Argon2 requires salt of at least 16 bytes"));
     }
 
     if key_len == 0 || key_len > 4294967295 {
-        return Err(CrabError::invalid_input(
-            "Invalid key length",
-        ));
+        return Err(CrabError::invalid_input("Invalid key length"));
     }
 
     // Build Argon2 parameters
-    let argon2_params = Params::new(
-        params.memory_cost,
-        params.time_cost,
-        params.parallelism,
-        Some(key_len),
-    )?;
+    let argon2_params =
+        Params::new(params.memory_cost, params.time_cost, params.parallelism, Some(key_len))?;
 
     let argon2 = Argon2::new(Algorithm::Argon2id, Version::V0x13, argon2_params);
 
@@ -173,30 +163,30 @@ mod tests {
     fn test_argon2_deterministic() {
         let password = b"test_password";
         let salt = b"test_salt_16byte";
-        
+
         let key1 = argon2_derive(password, salt, 32).unwrap();
         let key2 = argon2_derive(password, salt, 32).unwrap();
-        
+
         assert_eq!(key1.as_slice(), key2.as_slice());
     }
 
     #[test]
     fn test_argon2_different_passwords() {
         let salt = b"same_salt_16byte";
-        
+
         let key1 = argon2_derive(b"password1", salt, 32).unwrap();
         let key2 = argon2_derive(b"password2", salt, 32).unwrap();
-        
+
         assert_ne!(key1.as_slice(), key2.as_slice());
     }
 
     #[test]
     fn test_argon2_different_salts() {
         let password = b"same_password";
-        
+
         let key1 = argon2_derive(password, b"salt1_16bytes!!!", 32).unwrap();
         let key2 = argon2_derive(password, b"salt2_16bytes!!!", 32).unwrap();
-        
+
         assert_ne!(key1.as_slice(), key2.as_slice());
     }
 
@@ -211,7 +201,7 @@ mod tests {
         let password = b"password";
         let salt = b"saltsaltsaltsalt";
         let params = Argon2Params::low_memory();
-        
+
         let key = argon2_derive_with_params(password, salt, 32, &params).unwrap();
         assert_eq!(key.len(), 32);
     }
@@ -221,7 +211,7 @@ mod tests {
         let password = b"password";
         let salt = b"saltsaltsaltsalt";
         let params = Argon2Params::high_security();
-        
+
         let key = argon2_derive_with_params(password, salt, 32, &params).unwrap();
         assert_eq!(key.len(), 32);
     }
@@ -230,11 +220,11 @@ mod tests {
     fn test_argon2_variable_output_length() {
         let password = b"password";
         let salt = b"saltsaltsaltsalt";
-        
+
         let key16 = argon2_derive(password, salt, 16).unwrap();
         let key32 = argon2_derive(password, salt, 32).unwrap();
         let key64 = argon2_derive(password, salt, 64).unwrap();
-        
+
         assert_eq!(key16.len(), 16);
         assert_eq!(key32.len(), 32);
         assert_eq!(key64.len(), 64);

@@ -49,7 +49,8 @@ impl Ciphertext {
     /// assert_eq!(ciphertext, recovered);
     /// ```
     pub fn to_bytes(&self) -> Vec<u8> {
-        let mut result = Vec::with_capacity(self.nonce.len() + self.ciphertext.len() + self.tag.len());
+        let mut result =
+            Vec::with_capacity(self.nonce.len() + self.ciphertext.len() + self.tag.len());
         result.extend_from_slice(&self.nonce);
         result.extend_from_slice(&self.ciphertext);
         result.extend_from_slice(&self.tag);
@@ -65,7 +66,11 @@ impl Ciphertext {
     ///
     /// # Errors
     /// Returns error if data is too short or malformed.
-    pub fn from_bytes(data: &[u8], nonce_len: usize, tag_len: usize) -> crate::errors::CrabResult<Self> {
+    pub fn from_bytes(
+        data: &[u8],
+        nonce_len: usize,
+        tag_len: usize,
+    ) -> crate::errors::CrabResult<Self> {
         use crate::errors::CrabError;
 
         if data.len() < nonce_len + tag_len {
@@ -89,7 +94,11 @@ impl Ciphertext {
     }
 
     /// Decodes from base64 string.
-    pub fn from_base64(data: &str, nonce_len: usize, tag_len: usize) -> crate::errors::CrabResult<Self> {
+    pub fn from_base64(
+        data: &str,
+        nonce_len: usize,
+        tag_len: usize,
+    ) -> crate::errors::CrabResult<Self> {
         let bytes = crate::encoding::base64_decode(data)?;
         Self::from_bytes(&bytes, nonce_len, tag_len)
     }

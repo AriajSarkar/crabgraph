@@ -71,7 +71,11 @@ impl CrabAead for AesGcm128 {
         self.encrypt_with_nonce(plaintext, &nonce_bytes, associated_data)
     }
 
-    fn decrypt(&self, ciphertext: &Ciphertext, associated_data: Option<&[u8]>) -> CrabResult<Vec<u8>> {
+    fn decrypt(
+        &self,
+        ciphertext: &Ciphertext,
+        associated_data: Option<&[u8]>,
+    ) -> CrabResult<Vec<u8>> {
         if ciphertext.nonce.len() != Self::NONCE_SIZE {
             return Err(CrabError::InvalidNonce(format!(
                 "Expected {}-byte nonce, got {}",
@@ -80,7 +84,10 @@ impl CrabAead for AesGcm128 {
             )));
         }
 
-        let nonce_array: [u8; 12] = ciphertext.nonce.as_slice().try_into()
+        let nonce_array: [u8; 12] = ciphertext
+            .nonce
+            .as_slice()
+            .try_into()
             .map_err(|_| CrabError::InvalidNonce("Invalid nonce length".to_string()))?;
         let nonce = Nonce::from(nonce_array);
 
@@ -112,7 +119,8 @@ impl CrabAead for AesGcm128 {
             )));
         }
 
-        let nonce_array: [u8; 12] = nonce.try_into()
+        let nonce_array: [u8; 12] = nonce
+            .try_into()
             .map_err(|_| CrabError::InvalidNonce("Invalid nonce length".to_string()))?;
         let nonce_obj = Nonce::from(nonce_array);
         let payload = Payload {
@@ -193,7 +201,11 @@ impl CrabAead for AesGcm256 {
         self.encrypt_with_nonce(plaintext, &nonce_bytes, associated_data)
     }
 
-    fn decrypt(&self, ciphertext: &Ciphertext, associated_data: Option<&[u8]>) -> CrabResult<Vec<u8>> {
+    fn decrypt(
+        &self,
+        ciphertext: &Ciphertext,
+        associated_data: Option<&[u8]>,
+    ) -> CrabResult<Vec<u8>> {
         if ciphertext.nonce.len() != Self::NONCE_SIZE {
             return Err(CrabError::InvalidNonce(format!(
                 "Expected {}-byte nonce, got {}",
@@ -202,7 +214,10 @@ impl CrabAead for AesGcm256 {
             )));
         }
 
-        let nonce_array: [u8; 12] = ciphertext.nonce.as_slice().try_into()
+        let nonce_array: [u8; 12] = ciphertext
+            .nonce
+            .as_slice()
+            .try_into()
             .map_err(|_| CrabError::InvalidNonce("Invalid nonce length".to_string()))?;
         let nonce = Nonce::from(nonce_array);
 
@@ -234,7 +249,8 @@ impl CrabAead for AesGcm256 {
             )));
         }
 
-        let nonce_array: [u8; 12] = nonce.try_into()
+        let nonce_array: [u8; 12] = nonce
+            .try_into()
             .map_err(|_| CrabError::InvalidNonce("Invalid nonce length".to_string()))?;
         let nonce_obj = Nonce::from(nonce_array);
         let payload = Payload {
@@ -342,11 +358,7 @@ mod tests {
 
     #[test]
     fn test_ciphertext_base64() {
-        let ciphertext = Ciphertext::new(
-            vec![1, 2, 3],
-            vec![4, 5, 6],
-            vec![7, 8, 9],
-        );
+        let ciphertext = Ciphertext::new(vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]);
 
         let b64 = ciphertext.to_base64();
         let recovered = Ciphertext::from_base64(&b64, 3, 3).unwrap();
