@@ -17,6 +17,7 @@ fuzz/artifacts/
 *.swo
 *~
 .DS_Store
+copilot-instructions.md
 
 # Testing
 *.profraw
