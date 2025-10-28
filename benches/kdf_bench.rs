@@ -2,7 +2,8 @@ use crabgraph::kdf::{
     argon2_derive, argon2_derive_with_params, hkdf_sha256, pbkdf2_derive_sha256, Argon2Params,
     PBKDF2_SHA256_RECOMMENDED_ITERATIONS,
 };
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
+use std::hint::black_box;
 
 fn kdf_benchmarks(c: &mut Criterion) {
     let mut group = c.benchmark_group("kdf");

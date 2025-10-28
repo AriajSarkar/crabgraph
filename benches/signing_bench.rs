@@ -1,5 +1,8 @@
+#[cfg(feature = "rsa-support")]
+use crabgraph::asym::RsaKeyPair;
 use crabgraph::asym::{Ed25519KeyPair, X25519KeyPair};
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
+use std::hint::black_box;
 
 fn signing_benchmarks(c: &mut Criterion) {
     let mut group = c.benchmark_group("signing");
@@ -54,5 +57,49 @@ fn key_exchange_benchmarks(c: &mut Criterion) {
     group.finish();
 }
 
+#[cfg(feature = "rsa-support")]
+fn rsa_benchmarks(c: &mut Criterion) {
+    let mut group = c.benchmark_group("rsa");
+    group.sample_size(10); // RSA is slow, use fewer samples
+
+    // RSA-2048 key generation
+    group.bench_function("rsa2048_keygen", |b| {
+        b.iter(|| RsaKeyPair::generate_2048().unwrap());
+    });
+
+    let keypair = RsaKeyPair::generate_2048().unwrap();
+    let message = b"Message to sign for benchmarking purposes";
+    let plaintext = b"Short message to encrypt";
+
+    // RSA-2048 signing
+    group.bench_function("rsa2048_sign", |b| {
+        b.iter(|| keypair.sign(black_box(message)).unwrap());
+    });
+
+    // RSA-2048 verification
+    let signature = keypair.sign(message).unwrap();
+    group.bench_function("rsa2048_verify", |b| {
+        b.iter(|| keypair.verify(black_box(message), black_box(&signature)).unwrap());
+    });
+
+    // RSA-2048 encryption
+    group.bench_function("rsa2048_encrypt", |b| {
+        b.iter(|| keypair.encrypt(black_box(plaintext)).unwrap());
+    });
+
+    // RSA-2048 decryption
+    let ciphertext = keypair.encrypt(plaintext).unwrap();
+    group.bench_function("rsa2048_decrypt", |b| {
+        b.iter(|| keypair.decrypt(black_box(&ciphertext)).unwrap());
+    });
+
+    group.finish();
+}
+
+#[cfg(feature = "rsa-support")]
+criterion_group!(benches, signing_benchmarks, key_exchange_benchmarks, rsa_benchmarks);
+
+#[cfg(not(feature = "rsa-support"))]
 criterion_group!(benches, signing_benchmarks, key_exchange_benchmarks);
+
 criterion_main!(benches);

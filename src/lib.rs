@@ -14,11 +14,17 @@
 //!
 //! - **Authenticated Encryption (AEAD)**: [`aead::AesGcm256`], [`aead::ChaCha20Poly1305`]
 //! - **Key Derivation**: [`kdf::argon2_derive`], [`kdf::pbkdf2_derive`], [`kdf::hkdf_extract_expand`]
-//! - **Digital Signatures**: [`asym::Ed25519KeyPair`]
+//! - **Digital Signatures**: [`asym::Ed25519KeyPair`], [`asym::RsaKeyPair`] (with `rsa-support` feature)
 //! - **Key Exchange**: [`asym::X25519KeyPair`]
 //! - **Message Authentication**: [`mac::hmac_sha256`]
 //! - **Hashing**: [`hash::sha256`], [`hash::sha512`]
 //! - **Secure Random**: [`rand::secure_bytes`]
+//!
+//! # ⚠️ RSA Security Warning (rsa-support feature)
+//!
+//! The RSA implementation has a known vulnerability (RUSTSEC-2023-0071 - Marvin timing attack).
+//! **Use Ed25519 for signatures and X25519+AEAD for encryption** unless RSA is specifically
+//! required for compatibility with legacy systems.
 //!
 //! # Quick Start
 //!

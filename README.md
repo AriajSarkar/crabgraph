@@ -20,10 +20,11 @@ For security issues, please see [SECURITY.md](SECURITY.md).
 
 - 🔒 **Authenticated Encryption (AEAD)**: AES-GCM, ChaCha20-Poly1305
 - 🔑 **Key Derivation**: PBKDF2, Argon2, HKDF
-- ✍️ **Digital Signatures**: Ed25519
+- ✍️ **Digital Signatures**: Ed25519, (optional: RSA-PSS)
 - 🤝 **Key Exchange**: X25519 (Elliptic Curve Diffie-Hellman)
 - 🔐 **Message Authentication**: HMAC (SHA-256, SHA-512)
 - #️⃣ **Hashing**: SHA-256, SHA-512, (optional: SHA-3, BLAKE2)
+- 🔒 **Optional RSA Support**: RSA-OAEP encryption & RSA-PSS signatures (⚠️ opt-in only, not recommended)
 - 🎲 **Secure Random**: Cryptographically secure RNG wrapper
 - 🧹 **Memory Safety**: Automatic zeroization of sensitive data
 - 🌐 **Interoperability**: Helpers for CryptoJS compatibility
@@ -167,10 +168,21 @@ cargo audit
 - `alloc`: Allocation support without full std
 - `no_std`: Embedded/bare-metal support
 - `extended-hashes`: SHA-3 and BLAKE2 support
-- `rsa-support`: RSA encryption/signatures (large dependency)
+- `rsa-support`: RSA encryption/signatures (⚠️ **NOT enabled by default** - opt-in only, has known vulnerability RUSTSEC-2023-0071)
 - `serde-support`: Serialization for keys and ciphertexts
 - `zero-copy`: `bytes` crate integration for high-performance scenarios
 - `wasm`: WebAssembly support
+
+### Enabling RSA Support
+
+RSA is **not included by default** due to security concerns. To use RSA:
+
+```toml
+[dependencies]
+crabgraph = { version = "0.2", features = ["rsa-support"] }
+```
+
+⚠️ **Security Warning**: RSA has a known timing attack vulnerability (RUSTSEC-2023-0071). Use Ed25519 for signatures and X25519+AEAD for encryption unless RSA is specifically required for legacy compatibility.
 
 ## 🤝 Contributing
 
