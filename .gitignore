@@ -1,0 +1,42 @@
+# .gitignore for CrabGraph
+
+# Rust
+target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# Fuzzing
+fuzz/corpus/
+fuzz/artifacts/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+*.profraw
+*.profdata
+coverage/
+tarpaulin-report.html
+cobertura.xml
+
+# Benchmarking
+criterion/
+benchmark_output.txt
+
+# Documentation
+target/doc/
+
+# Environment
+.env
+.env.local
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini

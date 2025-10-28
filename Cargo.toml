@@ -1,0 +1,95 @@
+[package]
+name = "crabgraph"
+version = "0.1.0"
+authors = ["Raj Sarkar <ariajsarkar@gmail.com>"]
+edition = "2021"
+rust-version = "1.70"
+description = "A safe, ergonomic, high-performance cryptographic library for Rust built on audited primitives"
+readme = "README.md"
+homepage = "https://github.com/AriajSarkar/crabgraph"
+repository = "https://github.com/AriajSarkar/crabgraph"
+license = "MIT OR Apache-2.0"
+keywords = ["cryptography", "crypto", "encryption", "security", "authentication"]
+categories = ["cryptography", "authentication", "encoding", "no-std"]
+
+[dependencies]
+# AEAD ciphers
+aes-gcm = { version = "0.10", features = ["std"] }
+chacha20poly1305 = { version = "0.10", features = ["std"] }
+
+# Key derivation
+pbkdf2 = { version = "0.12", features = ["simple"] }
+argon2 = { version = "0.5", features = ["std"] }
+hkdf = "0.12"
+
+# Hashing
+sha2 = { version = "0.10", features = ["oid"] }
+sha3 = { version = "0.10", optional = true }
+blake2 = { version = "0.10", optional = true }
+
+# MAC
+hmac = "0.12"
+
+# Asymmetric cryptography
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
+x25519-dalek = { version = "2.0", features = ["static_secrets"] }
+rsa = { version = "0.9", optional = true, features = ["sha2"] }
+
+# Random number generation
+getrandom = "0.2"
+rand_core = "0.6"
+
+# Secure memory handling
+zeroize = { version = "1.7", features = ["derive"] }
+
+# Encoding
+base64 = "0.21"
+hex = "0.4"
+
+# Error handling
+thiserror = "1.0"
+
+# Serialization (optional)
+serde = { version = "1.0", features = ["derive"], optional = true }
+
+# Zero-copy optimizations (optional)
+bytes = { version = "1.5", optional = true }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+proptest = "1.4"
+quickcheck = "1.0"
+hex-literal = "0.4"
+
+[features]
+default = ["std"]
+std = ["aes-gcm/std", "chacha20poly1305/std", "argon2/std"]
+alloc = ["aes-gcm/alloc", "chacha20poly1305/alloc"]
+no_std = []
+extended-hashes = ["sha3", "blake2"]
+rsa-support = ["rsa"]
+serde-support = ["serde"]
+zero-copy = ["bytes"]
+wasm = ["getrandom/js"]
+
+[[bench]]
+name = "aead_bench"
+harness = false
+
+[[bench]]
+name = "kdf_bench"
+harness = false
+
+[[bench]]
+name = "signing_bench"
+harness = false
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+
+[profile.bench]
+opt-level = 3
+lto = true
+codegen-units = 1

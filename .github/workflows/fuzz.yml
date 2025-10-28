@@ -1,0 +1,31 @@
+name: Fuzzing
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Run daily at 2 AM UTC
+  workflow_dispatch:
+
+jobs:
+  fuzz:
+    name: Fuzz Testing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz
+      - name: Run fuzzing (short duration for CI)
+        run: |
+          # Run each fuzz target for 60 seconds
+          cd fuzz
+          for target in fuzz_targets/*.rs; do
+            target_name=$(basename "$target" .rs)
+            echo "Fuzzing $target_name..."
+            cargo fuzz run "$target_name" -- -max_total_time=60 || true
+          done
+      - name: Upload artifacts if crashes found
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: fuzz-artifacts
+          path: fuzz/artifacts/
