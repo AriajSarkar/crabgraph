@@ -1,6 +1,6 @@
 [package]
 name = "crabgraph"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Raj Sarkar <ariajsarkar@gmail.com>"]
 edition = "2021"
 rust-version = "1.70"
@@ -67,10 +67,10 @@ serde = { version = "1.0", features = ["derive"], optional = true }
 bytes = { version = "1.5", optional = true }
 
 [dev-dependencies]
-criterion = { version = "0.5", features = ["html_reports"] }
+criterion = { version = "0.7.0", features = ["html_reports"] }
 proptest = "1.4"
 quickcheck = "1.0"
-hex-literal = "0.4"
+hex-literal = "1.0.0"
 
 [features]
 default = ["std"]
@@ -82,6 +82,10 @@ rsa-support = ["rsa"]
 serde-support = ["serde"]
 zero-copy = ["bytes"]
 wasm = ["getrandom/js"]
+
+[[example]]
+name = "rsa_example"
+required-features = ["rsa-support"]
 
 [[bench]]
 name = "aead_bench"

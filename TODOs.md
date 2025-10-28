@@ -5,16 +5,21 @@ This document tracks planned features, improvements, and ongoing work for CrabGr
 ## High Priority (v0.2.0)
 
 ### Core Functionality
-- [ ] Add RSA encryption and signatures (behind `rsa` feature flag)
-  - Implementation: Use `rsa` crate with OAEP/PSS
-  - Complexity: Medium (2-3 days)
-  - Security: Requires careful parameter selection
+- [x] Add RSA encryption and signatures (behind `rsa` feature flag)
+  - Implementation: Use `rsa` crate with OAEP/PSS ✓
+  - Complexity: Medium (2-3 days) ✓
+  - Security: Requires careful parameter selection ✓
+  - Status: **COMPLETED v0.2.0** - Includes full test suite, benchmarks, examples
 
-- [ ] Add more RFC test vectors for all algorithms
-  - NIST vectors for AES-GCM
-  - RFC 7539 vectors for ChaCha20-Poly1305
-  - RFC 4868 vectors for HMAC
-  - Complexity: Low (1 day)
+- [x] Add more RFC test vectors for all algorithms
+  - NIST vectors for AES-GCM ✓
+  - RFC 7539 vectors for ChaCha20-Poly1305 ✓
+  - RFC 4231 vectors for HMAC-SHA256/512 ✓
+  - RFC 4634 vectors for SHA-256/512 ✓
+  - RFC 6070 vectors for PBKDF2 ✓
+  - RFC 5869 vectors for HKDF ✓
+  - Complexity: Low (1 day) ✓
+  - Status: **COMPLETED v0.2.0** - 13 comprehensive RFC test cases in `tests/rfc_vectors.rs`
 
 - [ ] Implement constant-time comparison everywhere
   - Review all comparison operations
@@ -231,5 +236,5 @@ Priority is given to:
 
 ---
 
-**Last Updated**: October 28, 2025
-**Version**: 0.1.0
+**Last Updated**: October 29, 2025
+**Version**: 0.2.0
