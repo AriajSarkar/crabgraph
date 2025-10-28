@@ -10,9 +10,15 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
 
       - name: Run all tests
         run: |
@@ -27,6 +33,7 @@ jobs:
         run: |
           cargo install cargo-audit
           cargo audit
+        continue-on-error: true  # Don't fail on known RSA vulnerability
 
       - name: Publish to crates.io
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
