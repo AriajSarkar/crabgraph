@@ -45,9 +45,7 @@ fn test_aes_128_gcm_nist_vector_1() -> CrabResult<()> {
 #[test]
 fn test_aes_256_gcm_nist_vector_with_aad() -> CrabResult<()> {
     // Test Case with Additional Authenticated Data
-    let key = hex!(
-        "0000000000000000000000000000000000000000000000000000000000000000"
-    );
+    let key = hex!("0000000000000000000000000000000000000000000000000000000000000000");
     let plaintext = hex!("00000000000000000000000000000000");
     let aad = hex!("00000000000000000000000000000000");
     let nonce = hex!("000000000000000000000000");
@@ -70,9 +68,7 @@ fn test_aes_256_gcm_nist_vector_with_aad() -> CrabResult<()> {
 #[test]
 fn test_aes_gcm_nist_vector_full() -> CrabResult<()> {
     // Key length = 256, IV length = 96, PT length = 128, AAD length = 0, Tag length = 128
-    let key = hex!(
-        "31bdadd96698c204aa9ce1448ea94ae1fb4a9a0b3c9d773b51bb1822666b8f22"
-    );
+    let key = hex!("31bdadd96698c204aa9ce1448ea94ae1fb4a9a0b3c9d773b51bb1822666b8f22");
     let plaintext = hex!("2db5168e932556f8089a0622981d017d");
     let nonce = hex!("0d18e06c7c725ac9e362e1ce");
     let expected_ciphertext = hex!("fa4362189661d163fcd6a56d8bf0405a");
@@ -99,9 +95,7 @@ fn test_aes_gcm_nist_vector_full() -> CrabResult<()> {
 /// RFC 7539 Section 2.8.2 - ChaCha20-Poly1305 AEAD Decryption
 #[test]
 fn test_chacha20poly1305_rfc7539_section_2_8_2() -> CrabResult<()> {
-    let key = hex!(
-        "808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f"
-    );
+    let key = hex!("808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f");
     let plaintext = b"Ladies and Gentlemen of the class of '99: If I could offer you only one tip for the future, sunscreen would be it.";
     let aad = hex!("50515253c0c1c2c3c4c5c6c7");
     let nonce = hex!("070000004041424344454647");
@@ -121,15 +115,13 @@ fn test_chacha20poly1305_rfc7539_section_2_8_2() -> CrabResult<()> {
 fn test_chacha20poly1305_rfc7539_appendix_a5() -> CrabResult<()> {
     let plaintext = b"Cryptographic Forum Research Group";
     let aad = hex!("f33388860000000000004e91");
-    let key = hex!(
-        "1c9240a5eb55d38af333888604f6b5f0473917c1402b80099dca5cbc207075c0"
-    );
+    let key = hex!("1c9240a5eb55d38af333888604f6b5f0473917c1402b80099dca5cbc207075c0");
     let nonce = hex!("000000000102030405060708");
 
     let cipher = ChaCha20Poly1305::new(&key)?;
     let ciphertext = cipher.encrypt_with_nonce(plaintext, &nonce, Some(&aad))?;
 
-    // Note: Due to our serialization format (nonce | ciphertext | tag), 
+    // Note: Due to our serialization format (nonce | ciphertext | tag),
     // we verify correctness via successful decryption
     let decrypted = cipher.decrypt(&ciphertext, Some(&aad))?;
     assert_eq!(&decrypted[..], plaintext);
@@ -195,10 +187,10 @@ fn test_sha512_rfc4634_vectors() {
     let hash = sha512(b"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmno");
     // Using the correct value as computed by RustCrypto's audited sha2 implementation
     let expected: &[u8] = &[
-        144, 209, 189, 185, 166, 203, 249, 203, 13, 74, 127, 24, 94, 224, 135, 4, 86,
-        244, 64, 184, 31, 19, 245, 20, 244, 86, 26, 8, 17, 39, 99, 82, 48, 51, 36, 88,
-        117, 182, 130, 9, 187, 31, 93, 82, 21, 186, 200, 30, 13, 105, 247, 115, 116,
-        204, 68, 209, 190, 48, 245, 140, 139, 97, 81, 65
+        144, 209, 189, 185, 166, 203, 249, 203, 13, 74, 127, 24, 94, 224, 135, 4, 86, 244, 64, 184,
+        31, 19, 245, 20, 244, 86, 26, 8, 17, 39, 99, 82, 48, 51, 36, 88, 117, 182, 130, 9, 187, 31,
+        93, 82, 21, 186, 200, 30, 13, 105, 247, 115, 116, 204, 68, 209, 190, 48, 245, 140, 139, 97,
+        81, 65,
     ];
     assert_eq!(&hash[..], expected);
 }
@@ -343,7 +335,7 @@ fn test_hkdf_rfc5869_test_case_1() -> CrabResult<()> {
 
     // HKDF with salt and info
     let okm = hkdf_sha256(&ikm, 42)?;
-    
+
     // Verify length
     assert_eq!(okm.as_slice().len(), 42);
 
@@ -352,7 +344,7 @@ fn test_hkdf_rfc5869_test_case_1() -> CrabResult<()> {
         "3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf\
          34007208d5b887185865"
     );
-    
+
     // Note: Our simplified API doesn't expose salt/info parameters directly
     // This test validates that the function works and produces correct length
     // For full RFC compliance, we'd need to expose more parameters

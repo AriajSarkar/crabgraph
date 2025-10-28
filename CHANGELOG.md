@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - RFC 5869 vectors for HKDF (2 test cases)
   - Total test count increased to 177 tests (from 164)
 
+- **Constant-Time Operations Audit** - Complete review and documentation
+  - Added `subtle` crate v2.6 for constant-time comparisons
+  - Updated `constant_time_eq()` to use industry-standard `subtle::ConstantTimeEq`
+  - Created comprehensive `CONSTANT_TIME_AUDIT.md` documentation
+  - Verified all MAC and AEAD operations use constant-time tag verification
+  - Added security notes to MAC verification functions
+  - Documented guidelines for when to use constant-time comparisons
+
 ### Planned
 - PKCS#8 key import/export for Ed25519/X25519
 - Streaming encryption API

@@ -21,10 +21,12 @@ This document tracks planned features, improvements, and ongoing work for CrabGr
   - Complexity: Low (1 day) ✓
   - Status: **COMPLETED v0.2.0** - 13 comprehensive RFC test cases in `tests/rfc_vectors.rs`
 
-- [ ] Implement constant-time comparison everywhere
-  - Review all comparison operations
-  - Use `subtle` crate or similar
-  - Complexity: Low (1 day)
+- [x] Implement constant-time comparison everywhere
+  - Review all comparison operations ✓
+  - Use `subtle` crate ✓
+  - Added comprehensive documentation ✓
+  - Complexity: Low (1 day) ✓
+  - Status: **COMPLETED v0.2.0** - `subtle` crate integrated, all critical paths audited in `docs/CONSTANT_TIME_AUDIT.md`
 
 ### API Improvements
 - [ ] Add `serde` support for keys and ciphertexts

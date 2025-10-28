@@ -44,11 +44,7 @@ fn main() -> CrabResult<()> {
 
     // Sign the document
     let signature = keypair.sign(document)?;
-    println!(
-        "Signature ({} bytes): {}",
-        signature.len(),
-        signature.to_hex()[..64].to_string()
-    );
+    println!("Signature ({} bytes): {}", signature.len(), &signature.to_hex()[..64]);
 
     // Verify with the keypair
     let is_valid = keypair.verify(document, &signature)?;
