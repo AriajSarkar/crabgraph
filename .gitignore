@@ -32,6 +32,8 @@ benchmark_output.txt
 benches/generated/*
 !benches/generated/README.md
 !benches/generated/index.html
+!benches/generated/styles.css
+!benches/generated/benchmark-parser.js
 
 # Documentation
 target/doc/
