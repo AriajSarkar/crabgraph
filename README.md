@@ -19,7 +19,8 @@ For security issues, please see [SECURITY.md](SECURITY.md).
 ## ✨ Features
 
 - 🔒 **Authenticated Encryption (AEAD)**: AES-GCM, ChaCha20-Poly1305
-- 🔑 **Key Derivation**: PBKDF2, Argon2, HKDF
+- � **Streaming Encryption**: Process large files chunk-by-chunk with STREAM construction
+- �🔑 **Key Derivation**: PBKDF2, Argon2, HKDF
 - ✍️ **Digital Signatures**: Ed25519, (optional: RSA-PSS)
 - 🤝 **Key Exchange**: X25519 (Elliptic Curve Diffie-Hellman)
 - 🔐 **Message Authentication**: HMAC (SHA-256, SHA-512)
@@ -124,6 +125,47 @@ fn main() -> CrabResult<()> {
     // Works with keys and signatures too
     let keypair = Ed25519KeyPair::generate()?;
     let pubkey_json = serde_json::to_string(&keypair.public_key())?;
+    
+    Ok(())
+}
+```
+
+### Streaming Encryption for Large Files
+
+```rust
+use crabgraph::{
+    aead::stream::{Aes256GcmStreamEncryptor, Aes256GcmStreamDecryptor},
+    rand::secure_bytes,
+    CrabResult
+};
+
+fn main() -> CrabResult<()> {
+    // Generate a 32-byte key for AES-256-GCM
+    let key = secure_bytes(32)?;
+    
+    // Create stream encryptor (auto-generates 7-byte nonce)
+    let mut encryptor = Aes256GcmStreamEncryptor::new(&key)?;
+    let nonce = encryptor.nonce().to_vec(); // Save nonce for decryption
+    
+    // Encrypt chunks (64 KB default chunk size)
+    let chunk1 = b"First chunk of data...";
+    let chunk2 = b"Second chunk of data...";
+    let chunk3 = b"Final chunk of data!";
+    
+    let encrypted1 = encryptor.encrypt_next(chunk1)?;
+    let encrypted2 = encryptor.encrypt_next(chunk2)?;
+    let encrypted3 = encryptor.encrypt_last(chunk3)?; // Consumes encryptor
+    
+    // Decrypt using saved nonce
+    let mut decryptor = Aes256GcmStreamDecryptor::from_nonce(&key, &nonce)?;
+    
+    let decrypted1 = decryptor.decrypt_next(&encrypted1)?;
+    let decrypted2 = decryptor.decrypt_next(&encrypted2)?;
+    let decrypted3 = decryptor.decrypt_last(&encrypted3)?; // Consumes decryptor
+    
+    assert_eq!(decrypted1, chunk1);
+    assert_eq!(decrypted2, chunk2);
+    assert_eq!(decrypted3, chunk3);
     
     Ok(())
 }

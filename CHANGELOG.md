@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Streaming AEAD Encryption** - High-performance streaming encryption for large files
+  - `Aes256GcmStreamEncryptor` and `Aes256GcmStreamDecryptor` for AES-256-GCM
+  - `ChaCha20Poly1305StreamEncryptor` and `ChaCha20Poly1305StreamDecryptor`
+  - Uses RustCrypto's `aead::stream` module (STREAM construction from RFC)
+  - Implements EncryptorBE32/DecryptorBE32 with proper nonce derivation
+  - Auto-generates 7-byte nonces (12-byte AEAD nonce - 5 bytes for counter/flag)
+  - Methods: `new()`, `nonce()`, `encrypt_next()`, `encrypt_last()`, `from_nonce()`, `decrypt_next()`, `decrypt_last()`
+  - Proper ownership semantics (encrypt_last/decrypt_last consume self)
+  - Each chunk independently authenticated with nonce-reuse resistance
+  - Maximum 2^32 chunks per stream
+  - Default chunk size: 64 KB, max chunk size: 1 MB
+  - 5 comprehensive tests covering roundtrip, large data, authentication failures, and edge cases
+  - Total test count increased to 108 tests (from 103)
+
 - **Comprehensive RFC/NIST Test Vectors** - 13 new test cases covering 28 test vectors from 8 standards
   - NIST CAVP vectors for AES-128/256-GCM (3 test cases)
   - RFC 7539 vectors for ChaCha20-Poly1305 (2 test cases)
@@ -15,7 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - RFC 4231 vectors for HMAC-SHA256/512 (10 test vectors)
   - RFC 6070 vectors for PBKDF2 (4 test cases, adapted for security minimums)
   - RFC 5869 vectors for HKDF (2 test cases)
-  - Total test count increased to 177 tests (from 164)
 
 - **Constant-Time Operations Audit** - Complete review and documentation
   - Added `subtle` crate v2.6 for constant-time comparisons

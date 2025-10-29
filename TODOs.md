@@ -44,10 +44,14 @@ This document tracks planned features, improvements, and ongoing work for CrabGr
   - Complexity: Medium (2 days) ✓
   - Status: **COMPLETED v0.2.0** - Full implementation using `pkcs8` crate with proper RFC compliance, comprehensive example in `examples/pkcs8_example.rs`
 
-- [ ] Add streaming encryption API
-  - For large files that don't fit in memory
-  - Use `aead::stream` from RustCrypto
-  - Complexity: Medium (2-3 days)
+- [x] Add streaming encryption API
+  - For large files that don't fit in memory ✓
+  - Use `aead::stream` from RustCrypto ✓
+  - Implements STREAM construction (RFC: Online Authenticated-Encryption) ✓
+  - AES-256-GCM and ChaCha20-Poly1305 support ✓
+  - 7-byte nonce derivation with nonce-reuse resistance ✓
+  - Complexity: Medium (2-3 days) ✓
+  - Status: **COMPLETED v0.2.0** - Full implementation with 5 comprehensive tests, example in `examples/stream_example.rs`
 
 ## Medium Priority (v0.3.0)
 

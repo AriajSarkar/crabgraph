@@ -5,6 +5,7 @@
 pub mod aead_trait;
 pub mod aes_gcm;
 pub mod chacha20poly1305;
+pub mod stream;
 
 pub use aead_trait::CrabAead;
 pub use aes_gcm::{AesGcm128, AesGcm256};
