@@ -4,6 +4,7 @@ use crabgraph::kdf::{
 };
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::hint::black_box;
+use std::path::Path;
 
 fn kdf_benchmarks(c: &mut Criterion) {
     let mut group = c.benchmark_group("kdf");
@@ -51,5 +52,14 @@ fn kdf_benchmarks(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, kdf_benchmarks);
+fn configure_criterion() -> Criterion {
+    Criterion::default()
+        .output_directory(Path::new("benches/generated"))
+}
+
+criterion_group! {
+    name = benches;
+    config = configure_criterion();
+    targets = kdf_benchmarks
+}
 criterion_main!(benches);

@@ -24,7 +24,7 @@ jobs:
             cargo fuzz run "$target_name" -- -max_total_time=60 || true
           done
       - name: Upload artifacts if crashes found
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: fuzz-artifacts

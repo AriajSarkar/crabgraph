@@ -111,6 +111,14 @@ harness = false
 name = "signing_bench"
 harness = false
 
+[[bench]]
+name = "stream_bench"
+harness = false
+
+[[bench]]
+name = "comparison_bench"
+harness = false
+
 [profile.release]
 opt-level = 3
 lto = true
