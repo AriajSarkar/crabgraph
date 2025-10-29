@@ -1,6 +1,6 @@
 [package]
 name = "crabgraph"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Raj Sarkar <ariajsarkar@gmail.com>"]
 edition = "2021"
 rust-version = "1.70"
@@ -12,55 +12,73 @@ documentation = "https://docs.rs/crabgraph"
 license = "MIT OR Apache-2.0"
 keywords = ["cryptography", "crypto", "encryption", "security", "authentication"]
 categories = ["cryptography", "authentication", "encoding", "no-std"]
+exclude = [
+    ".github/",
+    ".gitignore",
+    "fuzz/",
+    "target/",
+    "TODOs.md",
+    "rustfmt.toml",
+    "Cargo.lock",
+    "docs/",
+]
 
 [dependencies]
-# AEAD ciphers
-aes-gcm = { version = "0.10", features = ["std"] }
-chacha20poly1305 = { version = "0.10", features = ["std"] }
+# AEAD ciphers - RustCrypto audited implementations
+aes-gcm = { version = "0.10.3", features = ["std", "stream"] }
+chacha20poly1305 = { version = "0.10.1", features = ["std", "stream"] }
 
-# Key derivation
-pbkdf2 = { version = "0.12", features = ["simple"] }
-argon2 = { version = "0.5", features = ["std"] }
-hkdf = "0.12"
+# Key derivation functions
+pbkdf2 = { version = "0.12.2", features = ["simple"] }
+argon2 = { version = "0.5.3", features = ["std"] }
+hkdf = "0.12.4"
 
-# Hashing
-sha2 = { version = "0.10", features = ["oid"] }
-sha3 = { version = "0.10", optional = true }
-blake2 = { version = "0.10", optional = true }
+# Hashing algorithms
+sha2 = { version = "0.10.9", features = ["oid"] }
+sha3 = { version = "0.10.8", optional = true }
+blake2 = { version = "0.10.6", optional = true }
 
-# MAC
-hmac = "0.12"
+# Message Authentication Codes
+hmac = "0.12.1"
 
 # Asymmetric cryptography
-ed25519-dalek = { version = "2.1", features = ["rand_core"] }
-x25519-dalek = { version = "2.0", features = ["static_secrets"] }
-rsa = { version = "0.9", optional = true, features = ["sha2"] }
+ed25519-dalek = { version = "2.2", features = ["rand_core", "pkcs8", "pem"] }
+x25519-dalek = { version = "2.0.1", features = ["static_secrets"] }
+rsa = { version = "0.9.8", optional = true, features = ["sha2"] }
+pkcs8 = { version = "0.10.2", features = ["pem", "alloc"] }
 
 # Random number generation
-getrandom = "0.2"
-rand_core = "0.6"
+getrandom = "0.2.16"
+rand_core = "0.6.4"
 
 # Secure memory handling
-zeroize = { version = "1.7", features = ["derive"] }
+zeroize = { version = "1.8.2", features = ["derive"] }
 
-# Encoding
-base64 = "0.21"
-hex = "0.4"
+# Constant-time operations
+subtle = { version = "2.6.1", default-features = false }
+
+# Encoding utilities
+base64 = "0.22.1"
+hex = "0.4.3"
 
 # Error handling
-thiserror = "1.0"
+thiserror = "1.0.69"
 
 # Serialization (optional)
-serde = { version = "1.0", features = ["derive"], optional = true }
+serde = { version = "1.0.215", features = ["derive"], optional = true }
 
 # Zero-copy optimizations (optional)
-bytes = { version = "1.5", optional = true }
+bytes = { version = "1.9.0", optional = true }
 
 [dev-dependencies]
-criterion = { version = "0.5", features = ["html_reports"] }
-proptest = "1.4"
-quickcheck = "1.0"
-hex-literal = "0.4"
+criterion = { version = "0.7.0", features = ["html_reports"] }
+proptest = "1.9.0"
+quickcheck = "1.0.3"
+hex-literal = "1.1.0"
+serde_json = "1.0.141"
+bincode = "1.3.3"
+toml = "0.8.23"
+serde_bytes = "0.11.19"
 
 [features]
 default = ["std"]
@@ -72,6 +90,14 @@ rsa-support = ["rsa"]
 serde-support = ["serde"]
 zero-copy = ["bytes"]
 wasm = ["getrandom/js"]
+
+[[example]]
+name = "rsa_example"
+required-features = ["rsa-support"]
+
+[[example]]
+name = "serde_example"
+required-features = ["serde-support"]
 
 [[bench]]
 name = "aead_bench"

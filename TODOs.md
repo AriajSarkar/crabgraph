@@ -5,37 +5,53 @@ This document tracks planned features, improvements, and ongoing work for CrabGr
 ## High Priority (v0.2.0)
 
 ### Core Functionality
-- [ ] Add RSA encryption and signatures (behind `rsa` feature flag)
-  - Implementation: Use `rsa` crate with OAEP/PSS
-  - Complexity: Medium (2-3 days)
-  - Security: Requires careful parameter selection
+- [x] Add RSA encryption and signatures (behind `rsa` feature flag)
+  - Implementation: Use `rsa` crate with OAEP/PSS ✓
+  - Complexity: Medium (2-3 days) ✓
+  - Security: Requires careful parameter selection ✓
+  - Status: **COMPLETED v0.2.0** - Includes full test suite, benchmarks, examples
 
-- [ ] Add more RFC test vectors for all algorithms
-  - NIST vectors for AES-GCM
-  - RFC 7539 vectors for ChaCha20-Poly1305
-  - RFC 4868 vectors for HMAC
-  - Complexity: Low (1 day)
+- [x] Add more RFC test vectors for all algorithms
+  - NIST vectors for AES-GCM ✓
+  - RFC 7539 vectors for ChaCha20-Poly1305 ✓
+  - RFC 4231 vectors for HMAC-SHA256/512 ✓
+  - RFC 4634 vectors for SHA-256/512 ✓
+  - RFC 6070 vectors for PBKDF2 ✓
+  - RFC 5869 vectors for HKDF ✓
+  - Complexity: Low (1 day) ✓
+  - Status: **COMPLETED v0.2.0** - 13 comprehensive RFC test cases in `tests/rfc_vectors.rs`
 
-- [ ] Implement constant-time comparison everywhere
-  - Review all comparison operations
-  - Use `subtle` crate or similar
-  - Complexity: Low (1 day)
+- [x] Implement constant-time comparison everywhere
+  - Review all comparison operations ✓
+  - Use `subtle` crate ✓
+  - Added comprehensive documentation ✓
+  - Complexity: Low (1 day) ✓
+  - Status: **COMPLETED v0.2.0** - `subtle` crate integrated, all critical paths audited in `docs/CONSTANT_TIME_AUDIT.md`
 
 ### API Improvements
-- [ ] Add `serde` support for keys and ciphertexts
-  - Enable serialization with `serde-support` feature
-  - Add examples for JSON/TOML serialization
-  - Complexity: Low (1 day)
+- [x] Add `serde` support for keys and ciphertexts
+  - Enable serialization with `serde-support` feature ✓
+  - Add examples for JSON/TOML/binary serialization ✓
+  - Works with Ciphertext, Ed25519 keys, signatures ✓
+  - Complexity: Low (1 day) ✓
+  - Status: **COMPLETED v0.2.0** - Full implementation with comprehensive example in `examples/serde_example.rs`
 
-- [ ] Add PKCS#8 import/export for keys
-  - Ed25519, X25519 key formats
-  - PEM encoding helpers
-  - Complexity: Medium (2 days)
+- [x] Add PKCS#8 import/export for keys
+  - Ed25519, X25519 key formats ✓
+  - PEM encoding helpers ✓
+  - DER binary encoding ✓
+  - SPKI (SubjectPublicKeyInfo) for public keys ✓
+  - Complexity: Medium (2 days) ✓
+  - Status: **COMPLETED v0.2.0** - Full implementation using `pkcs8` crate with proper RFC compliance, comprehensive example in `examples/pkcs8_example.rs`
 
-- [ ] Add streaming encryption API
-  - For large files that don't fit in memory
-  - Use `aead::stream` from RustCrypto
-  - Complexity: Medium (2-3 days)
+- [x] Add streaming encryption API
+  - For large files that don't fit in memory ✓
+  - Use `aead::stream` from RustCrypto ✓
+  - Implements STREAM construction (RFC: Online Authenticated-Encryption) ✓
+  - AES-256-GCM and ChaCha20-Poly1305 support ✓
+  - 7-byte nonce derivation with nonce-reuse resistance ✓
+  - Complexity: Medium (2-3 days) ✓
+  - Status: **COMPLETED v0.2.0** - Full implementation with 5 comprehensive tests, example in `examples/stream_example.rs`
 
 ## Medium Priority (v0.3.0)
 
@@ -231,5 +247,5 @@ Priority is given to:
 
 ---
 
-**Last Updated**: October 28, 2025
-**Version**: 0.1.0
+**Last Updated**: October 29, 2025
+**Version**: 0.2.0

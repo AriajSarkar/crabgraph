@@ -43,6 +43,10 @@ pub fn hmac_sha256(key: &[u8], message: &[u8]) -> CrabResult<HmacTag256> {
 
 /// Verifies an HMAC-SHA256 tag in constant time.
 ///
+/// **Security Note**: This function uses constant-time comparison via the `hmac` crate's
+/// `verify_slice()` method, which prevents timing attacks that could leak information
+/// about the expected tag value.
+///
 /// # Arguments
 /// * `key` - Secret key (same as used for generation)
 /// * `message` - Data to authenticate
@@ -66,6 +70,7 @@ pub fn hmac_sha256_verify(key: &[u8], message: &[u8], tag: &[u8]) -> CrabResult<
     let mut mac = HmacSha256::new_from_slice(key)
         .map_err(|e| CrabError::crypto_error(format!("HMAC key error: {}", e)))?;
     mac.update(message);
+    // verify_slice uses constant-time comparison from the `subtle` crate
     Ok(mac.verify_slice(tag).is_ok())
 }
 
@@ -97,6 +102,10 @@ pub fn hmac_sha512(key: &[u8], message: &[u8]) -> CrabResult<HmacTag512> {
 
 /// Verifies an HMAC-SHA512 tag in constant time.
 ///
+/// **Security Note**: This function uses constant-time comparison via the `hmac` crate's
+/// `verify_slice()` method, which prevents timing attacks that could leak information
+/// about the expected tag value.
+///
 /// # Arguments
 /// * `key` - Secret key (same as used for generation)
 /// * `message` - Data to authenticate
@@ -119,6 +128,7 @@ pub fn hmac_sha512_verify(key: &[u8], message: &[u8], tag: &[u8]) -> CrabResult<
     let mut mac = HmacSha512::new_from_slice(key)
         .map_err(|e| CrabError::crypto_error(format!("HMAC key error: {}", e)))?;
     mac.update(message);
+    // verify_slice uses constant-time comparison from the `subtle` crate
     Ok(mac.verify_slice(tag).is_ok())
 }
 

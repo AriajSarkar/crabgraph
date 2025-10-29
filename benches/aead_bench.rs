@@ -1,5 +1,6 @@
 use crabgraph::aead::{AesGcm256, ChaCha20Poly1305, CrabAead};
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use std::hint::black_box;
 
 fn aead_benchmarks(c: &mut Criterion) {
     let mut group = c.benchmark_group("aead");

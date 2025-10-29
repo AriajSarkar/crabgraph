@@ -11,8 +11,49 @@ use ed25519_dalek::{
 use rand_core::OsRng;
 
 /// Ed25519 signature (64 bytes).
+///
+/// With the `serde-support` feature, signatures can be serialized to/from JSON/TOML as base64 strings.
 #[derive(Clone, Debug, PartialEq)]
-pub struct Ed25519Signature(pub [u8; SIGNATURE_LENGTH]);
+#[cfg_attr(
+    feature = "serde-support",
+    derive(serde::Serialize, serde::Deserialize)
+)]
+#[cfg_attr(feature = "serde-support", serde(transparent))]
+pub struct Ed25519Signature(
+    #[cfg_attr(feature = "serde-support", serde(with = "serde_sig_bytes"))]
+    pub  [u8; SIGNATURE_LENGTH],
+);
+
+#[cfg(feature = "serde-support")]
+mod serde_sig_bytes {
+    use super::SIGNATURE_LENGTH;
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    pub fn serialize<S>(bytes: &[u8; SIGNATURE_LENGTH], serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&crate::encoding::base64_encode(bytes))
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<[u8; SIGNATURE_LENGTH], D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        let bytes = crate::encoding::base64_decode(&s).map_err(serde::de::Error::custom)?;
+        if bytes.len() != SIGNATURE_LENGTH {
+            return Err(serde::de::Error::custom(format!(
+                "Expected {} bytes, got {}",
+                SIGNATURE_LENGTH,
+                bytes.len()
+            )));
+        }
+        let mut arr = [0u8; SIGNATURE_LENGTH];
+        arr.copy_from_slice(&bytes);
+        Ok(arr)
+    }
+}
 
 impl Ed25519Signature {
     /// Creates a signature from bytes.
@@ -59,8 +100,46 @@ impl Ed25519Signature {
 }
 
 /// Ed25519 public key (32 bytes).
+///
+/// With the `serde-support` feature, public keys can be serialized to/from JSON/TOML as base64 strings.
 #[derive(Clone, Debug, PartialEq)]
-pub struct Ed25519PublicKey(VerifyingKey);
+#[cfg_attr(
+    feature = "serde-support",
+    derive(serde::Serialize, serde::Deserialize)
+)]
+pub struct Ed25519PublicKey(
+    #[cfg_attr(feature = "serde-support", serde(with = "serde_pub_key"))] VerifyingKey,
+);
+
+#[cfg(feature = "serde-support")]
+mod serde_pub_key {
+    use super::{VerifyingKey, PUBLIC_KEY_LENGTH};
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    pub fn serialize<S>(key: &VerifyingKey, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&crate::encoding::base64_encode(key.as_bytes()))
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<VerifyingKey, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        let bytes = crate::encoding::base64_decode(&s).map_err(serde::de::Error::custom)?;
+        if bytes.len() != PUBLIC_KEY_LENGTH {
+            return Err(serde::de::Error::custom(format!(
+                "Expected {} bytes, got {}",
+                PUBLIC_KEY_LENGTH,
+                bytes.len()
+            )));
+        }
+        VerifyingKey::from_bytes(bytes[..PUBLIC_KEY_LENGTH].try_into().unwrap())
+            .map_err(serde::de::Error::custom)
+    }
+}
 
 impl Ed25519PublicKey {
     /// Creates a public key from bytes.
@@ -211,6 +290,176 @@ impl Ed25519KeyPair {
     /// ```
     pub fn verify(&self, message: &[u8], signature: &Ed25519Signature) -> CrabResult<bool> {
         self.public_key().verify(message, signature)
+    }
+
+    /// Exports the keypair to PKCS#8 DER format.
+    ///
+    /// This is the binary encoding format for private keys.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::Ed25519KeyPair;
+    ///
+    /// let keypair = Ed25519KeyPair::generate().unwrap();
+    /// let der = keypair.to_pkcs8_der().unwrap();
+    /// let restored = Ed25519KeyPair::from_pkcs8_der(&der).unwrap();
+    /// ```
+    pub fn to_pkcs8_der(&self) -> CrabResult<Vec<u8>> {
+        use ed25519_dalek::pkcs8::EncodePrivateKey;
+
+        self.signing_key
+            .to_pkcs8_der()
+            .map(|doc| doc.as_bytes().to_vec())
+            .map_err(|e| CrabError::key_error(format!("Failed to encode PKCS#8 DER: {}", e)))
+    }
+
+    /// Imports a keypair from PKCS#8 DER format.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::Ed25519KeyPair;
+    ///
+    /// let keypair = Ed25519KeyPair::generate().unwrap();
+    /// let der = keypair.to_pkcs8_der().unwrap();
+    /// let restored = Ed25519KeyPair::from_pkcs8_der(&der).unwrap();
+    ///
+    /// let message = b"Test";
+    /// let sig = keypair.sign(message);
+    /// assert!(restored.verify(message, &sig).unwrap());
+    /// ```
+    pub fn from_pkcs8_der(der: &[u8]) -> CrabResult<Self> {
+        use ed25519_dalek::pkcs8::DecodePrivateKey;
+
+        let signing_key = SigningKey::from_pkcs8_der(der)
+            .map_err(|e| CrabError::key_error(format!("Failed to decode PKCS#8 DER: {}", e)))?;
+
+        Ok(Self { signing_key })
+    }
+
+    /// Exports the keypair to PKCS#8 PEM format.
+    ///
+    /// This is the text-based encoding format commonly used in configuration files.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::Ed25519KeyPair;
+    ///
+    /// let keypair = Ed25519KeyPair::generate().unwrap();
+    /// let pem = keypair.to_pkcs8_pem().unwrap();
+    /// assert!(pem.starts_with("-----BEGIN PRIVATE KEY-----"));
+    /// ```
+    pub fn to_pkcs8_pem(&self) -> CrabResult<String> {
+        use ed25519_dalek::pkcs8::EncodePrivateKey;
+
+        self.signing_key
+            .to_pkcs8_pem(Default::default())
+            .map(|s| s.to_string())
+            .map_err(|e| CrabError::key_error(format!("Failed to encode PKCS#8 PEM: {}", e)))
+    }
+
+    /// Imports a keypair from PKCS#8 PEM format.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::Ed25519KeyPair;
+    ///
+    /// let keypair = Ed25519KeyPair::generate().unwrap();
+    /// let pem = keypair.to_pkcs8_pem().unwrap();
+    /// let restored = Ed25519KeyPair::from_pkcs8_pem(&pem).unwrap();
+    ///
+    /// let message = b"Test";
+    /// let sig = keypair.sign(message);
+    /// assert!(restored.verify(message, &sig).unwrap());
+    /// ```
+    pub fn from_pkcs8_pem(pem: &str) -> CrabResult<Self> {
+        use ed25519_dalek::pkcs8::DecodePrivateKey;
+
+        let signing_key = SigningKey::from_pkcs8_pem(pem)
+            .map_err(|e| CrabError::key_error(format!("Failed to decode PKCS#8 PEM: {}", e)))?;
+
+        Ok(Self { signing_key })
+    }
+}
+
+impl Ed25519PublicKey {
+    /// Exports the public key to SPKI DER format (SubjectPublicKeyInfo).
+    ///
+    /// This is the standard binary encoding for public keys.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::Ed25519KeyPair;
+    ///
+    /// let keypair = Ed25519KeyPair::generate().unwrap();
+    /// let pubkey = keypair.public_key();
+    /// let der = pubkey.to_public_key_der().unwrap();
+    /// ```
+    pub fn to_public_key_der(&self) -> CrabResult<Vec<u8>> {
+        use ed25519_dalek::pkcs8::EncodePublicKey;
+
+        self.0
+            .to_public_key_der()
+            .map(|doc| doc.as_bytes().to_vec())
+            .map_err(|e| CrabError::key_error(format!("Failed to encode public key DER: {}", e)))
+    }
+
+    /// Imports a public key from SPKI DER format.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::Ed25519KeyPair;
+    ///
+    /// let keypair = Ed25519KeyPair::generate().unwrap();
+    /// let pubkey = keypair.public_key();
+    /// let der = pubkey.to_public_key_der().unwrap();
+    /// let restored = crabgraph::asym::Ed25519PublicKey::from_public_key_der(&der).unwrap();
+    /// ```
+    pub fn from_public_key_der(der: &[u8]) -> CrabResult<Self> {
+        use ed25519_dalek::pkcs8::DecodePublicKey;
+
+        let key = VerifyingKey::from_public_key_der(der)
+            .map_err(|e| CrabError::key_error(format!("Failed to decode public key DER: {}", e)))?;
+
+        Ok(Self(key))
+    }
+
+    /// Exports the public key to PEM format.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::Ed25519KeyPair;
+    ///
+    /// let keypair = Ed25519KeyPair::generate().unwrap();
+    /// let pubkey = keypair.public_key();
+    /// let pem = pubkey.to_public_key_pem().unwrap();
+    /// assert!(pem.starts_with("-----BEGIN PUBLIC KEY-----"));
+    /// ```
+    pub fn to_public_key_pem(&self) -> CrabResult<String> {
+        use ed25519_dalek::pkcs8::EncodePublicKey;
+
+        self.0
+            .to_public_key_pem(Default::default())
+            .map_err(|e| CrabError::key_error(format!("Failed to encode public key PEM: {}", e)))
+    }
+
+    /// Imports a public key from PEM format.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::Ed25519KeyPair;
+    ///
+    /// let keypair = Ed25519KeyPair::generate().unwrap();
+    /// let pubkey = keypair.public_key();
+    /// let pem = pubkey.to_public_key_pem().unwrap();
+    /// let restored = crabgraph::asym::Ed25519PublicKey::from_public_key_pem(&pem).unwrap();
+    /// ```
+    pub fn from_public_key_pem(pem: &str) -> CrabResult<Self> {
+        use ed25519_dalek::pkcs8::DecodePublicKey;
+
+        let key = VerifyingKey::from_public_key_pem(pem)
+            .map_err(|e| CrabError::key_error(format!("Failed to decode public key PEM: {}", e)))?;
+
+        Ok(Self(key))
     }
 }
 
