@@ -192,6 +192,254 @@ impl X25519KeyPair {
         let shared = self.secret.diffie_hellman(&their_public.0);
         Ok(X25519SharedSecret(SecretVec::new(shared.as_bytes().to_vec())))
     }
+
+    /// Exports the keypair to PKCS#8 DER format.
+    ///
+    /// This is the binary encoding format for private keys.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::X25519KeyPair;
+    ///
+    /// let keypair = X25519KeyPair::generate().unwrap();
+    /// let der = keypair.to_pkcs8_der().unwrap();
+    /// let restored = X25519KeyPair::from_pkcs8_der(&der).unwrap();
+    /// ```
+    pub fn to_pkcs8_der(&self) -> CrabResult<Vec<u8>> {
+        use pkcs8::{der::Encode, ObjectIdentifier};
+
+        // X25519 OID: 1.3.101.110
+        const X25519_OID: ObjectIdentifier = ObjectIdentifier::new_unwrap("1.3.101.110");
+
+        let private_key_info = pkcs8::PrivateKeyInfo::new(
+            pkcs8::AlgorithmIdentifierRef {
+                oid: X25519_OID,
+                parameters: None,
+            },
+            self.secret.as_bytes(),
+        );
+
+        private_key_info
+            .to_der()
+            .map_err(|e| CrabError::key_error(format!("Failed to encode PKCS#8 DER: {}", e)))
+    }
+
+    /// Imports a keypair from PKCS#8 DER format.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::X25519KeyPair;
+    ///
+    /// let keypair = X25519KeyPair::generate().unwrap();
+    /// let der = keypair.to_pkcs8_der().unwrap();
+    /// let restored = X25519KeyPair::from_pkcs8_der(&der).unwrap();
+    ///
+    /// let bob = X25519KeyPair::generate().unwrap();
+    /// let shared1 = keypair.diffie_hellman(&bob.public_key()).unwrap();
+    /// let shared2 = restored.diffie_hellman(&bob.public_key()).unwrap();
+    /// assert_eq!(shared1.as_bytes(), shared2.as_bytes());
+    /// ```
+    pub fn from_pkcs8_der(der: &[u8]) -> CrabResult<Self> {
+        use pkcs8::{der::Decode, ObjectIdentifier};
+
+        const X25519_OID: ObjectIdentifier = ObjectIdentifier::new_unwrap("1.3.101.110");
+
+        let private_key_info = pkcs8::PrivateKeyInfo::from_der(der)
+            .map_err(|e| CrabError::key_error(format!("Failed to decode PKCS#8 DER: {}", e)))?;
+
+        if private_key_info.algorithm.oid != X25519_OID {
+            return Err(CrabError::key_error(format!(
+                "Expected X25519 OID ({}), found {}",
+                X25519_OID, private_key_info.algorithm.oid
+            )));
+        }
+
+        if private_key_info.private_key.len() != X25519_KEY_SIZE {
+            return Err(CrabError::key_error(format!(
+                "Expected {} bytes of private key data, found {}",
+                X25519_KEY_SIZE,
+                private_key_info.private_key.len()
+            )));
+        }
+
+        Self::from_secret_bytes(private_key_info.private_key)
+    }
+
+    /// Exports the keypair to PKCS#8 PEM format.
+    ///
+    /// This is the text-based encoding format commonly used in configuration files.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::X25519KeyPair;
+    ///
+    /// let keypair = X25519KeyPair::generate().unwrap();
+    /// let pem = keypair.to_pkcs8_pem().unwrap();
+    /// assert!(pem.starts_with("-----BEGIN PRIVATE KEY-----"));
+    /// ```
+    pub fn to_pkcs8_pem(&self) -> CrabResult<String> {
+        use pkcs8::der::{Decode, EncodePem};
+
+        let der = self.to_pkcs8_der()?;
+        let private_key_info = pkcs8::PrivateKeyInfo::from_der(&der)
+            .map_err(|e| CrabError::key_error(format!("Failed to parse DER: {}", e)))?;
+
+        let pem = private_key_info
+            .to_pem(Default::default())
+            .map_err(|e| CrabError::key_error(format!("Failed to encode PKCS#8 PEM: {}", e)))?;
+
+        Ok(pem.to_string())
+    }
+
+    /// Imports a keypair from PKCS#8 PEM format.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::X25519KeyPair;
+    ///
+    /// let keypair = X25519KeyPair::generate().unwrap();
+    /// let pem = keypair.to_pkcs8_pem().unwrap();
+    /// let restored = X25519KeyPair::from_pkcs8_pem(&pem).unwrap();
+    ///
+    /// let bob = X25519KeyPair::generate().unwrap();
+    /// let shared1 = keypair.diffie_hellman(&bob.public_key()).unwrap();
+    /// let shared2 = restored.diffie_hellman(&bob.public_key()).unwrap();
+    /// assert_eq!(shared1.as_bytes(), shared2.as_bytes());
+    /// ```
+    pub fn from_pkcs8_pem(pem: &str) -> CrabResult<Self> {
+        let (_, doc) = pkcs8::Document::from_pem(pem)
+            .map_err(|e| CrabError::key_error(format!("Failed to decode PKCS#8 PEM: {}", e)))?;
+
+        Self::from_pkcs8_der(doc.as_bytes())
+    }
+}
+
+impl X25519PublicKey {
+    /// Exports the public key to SPKI DER format (SubjectPublicKeyInfo).
+    ///
+    /// This is the standard binary encoding for public keys.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::X25519KeyPair;
+    ///
+    /// let keypair = X25519KeyPair::generate().unwrap();
+    /// let pubkey = keypair.public_key();
+    /// let der = pubkey.to_public_key_der().unwrap();
+    /// ```
+    pub fn to_public_key_der(&self) -> CrabResult<Vec<u8>> {
+        use pkcs8::der::Encode;
+
+        // X25519 OID: 1.3.101.110
+        const X25519_OID: pkcs8::ObjectIdentifier =
+            pkcs8::ObjectIdentifier::new_unwrap("1.3.101.110");
+
+        // Create bit string from public key bytes
+        let bit_string = pkcs8::der::asn1::BitStringRef::from_bytes(self.0.as_bytes())
+            .map_err(|e| CrabError::key_error(format!("Failed to create bit string: {}", e)))?;
+
+        // Create SubjectPublicKeyInfo using owned type with constructor
+        let spki = pkcs8::SubjectPublicKeyInfo {
+            algorithm: pkcs8::AlgorithmIdentifierRef {
+                oid: X25519_OID,
+                parameters: None,
+            },
+            subject_public_key: bit_string,
+        };
+
+        // Encode to DER
+        spki.to_der()
+            .map_err(|e| CrabError::key_error(format!("Failed to encode public key DER: {}", e)))
+    }
+
+    /// Imports a public key from SPKI DER format.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::X25519KeyPair;
+    ///
+    /// let keypair = X25519KeyPair::generate().unwrap();
+    /// let pubkey = keypair.public_key();
+    /// let der = pubkey.to_public_key_der().unwrap();
+    /// let restored = crabgraph::asym::X25519PublicKey::from_public_key_der(&der).unwrap();
+    /// ```
+    pub fn from_public_key_der(der: &[u8]) -> CrabResult<Self> {
+        use pkcs8::der::Decode;
+
+        const X25519_OID: pkcs8::ObjectIdentifier =
+            pkcs8::ObjectIdentifier::new_unwrap("1.3.101.110");
+
+        // Parse DER using Ref type for zero-copy parsing
+        let spki = pkcs8::SubjectPublicKeyInfoRef::from_der(der)
+            .map_err(|e| CrabError::key_error(format!("Failed to decode public key DER: {}", e)))?;
+
+        // Verify algorithm OID
+        if spki.algorithm.oid != X25519_OID {
+            return Err(CrabError::key_error(format!(
+                "Expected X25519 OID ({}), found {}",
+                X25519_OID, spki.algorithm.oid
+            )));
+        }
+
+        // Extract public key bytes from bit string
+        let key_bytes = spki.subject_public_key.as_bytes().ok_or_else(|| {
+            CrabError::key_error("Failed to extract public key bytes".to_string())
+        })?;
+
+        if key_bytes.len() != X25519_KEY_SIZE {
+            return Err(CrabError::key_error(format!(
+                "Expected {} bytes of public key data, found {}",
+                X25519_KEY_SIZE,
+                key_bytes.len()
+            )));
+        }
+
+        Self::from_bytes(key_bytes)
+    }
+
+    /// Exports the public key to PEM format.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::X25519KeyPair;
+    ///
+    /// let keypair = X25519KeyPair::generate().unwrap();
+    /// let pubkey = keypair.public_key();
+    /// let pem = pubkey.to_public_key_pem().unwrap();
+    /// assert!(pem.starts_with("-----BEGIN PUBLIC KEY-----"));
+    /// ```
+    pub fn to_public_key_pem(&self) -> CrabResult<String> {
+        use pkcs8::der::{Decode, EncodePem};
+
+        let der = self.to_public_key_der()?;
+
+        // Parse back to get the proper type for PEM encoding
+        let spki = pkcs8::SubjectPublicKeyInfoRef::from_der(&der)
+            .map_err(|e| CrabError::key_error(format!("Failed to parse DER: {}", e)))?;
+
+        // Encode to PEM
+        spki.to_pem(pkcs8::LineEnding::default())
+            .map_err(|e| CrabError::key_error(format!("Failed to encode public key PEM: {}", e)))
+    }
+
+    /// Imports a public key from PEM format.
+    ///
+    /// # Example
+    /// ```
+    /// use crabgraph::asym::X25519KeyPair;
+    ///
+    /// let keypair = X25519KeyPair::generate().unwrap();
+    /// let pubkey = keypair.public_key();
+    /// let pem = pubkey.to_public_key_pem().unwrap();
+    /// let restored = crabgraph::asym::X25519PublicKey::from_public_key_pem(&pem).unwrap();
+    /// ```
+    pub fn from_public_key_pem(pem: &str) -> CrabResult<Self> {
+        // Use pkcs8::Document for proper PEM parsing
+        let (_, doc) = pkcs8::Document::from_pem(pem)
+            .map_err(|e| CrabError::key_error(format!("Failed to decode public key PEM: {}", e)))?;
+
+        Self::from_public_key_der(doc.as_bytes())
+    }
 }
 
 impl std::fmt::Debug for X25519KeyPair {

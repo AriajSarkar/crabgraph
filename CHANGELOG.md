@@ -36,14 +36,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dependency Updates** - Updated 21 packages to latest stable versions
   - RustCrypto: aes-gcm 0.10.3, chacha20poly1305 0.10.1, pbkdf2 0.12.2, argon2 0.5.3
   - Asymmetric: ed25519-dalek 2.2.0 (from 2.1), x25519-dalek 2.0.1
-  - Security: zeroize 1.8.2, subtle 2.6.1 (new)
+  - Security: zeroize 1.8.2, subtle 2.6.1 (new), pkcs8 0.10.2 (new)
   - Encoding: base64 0.22.1
   - Dev deps: proptest 1.9.0 (from 1.5.0), hex-literal 1.1.0, serde_json 1.0.141, serde_bytes 0.11.19
-  - All tests passing (177 with all features, 166 with serde-support)
+  - All tests passing (193 with all features: 103 unit + 6 integration + 7 interop + 13 RFC vectors + 64 doc tests)
   - Avoided breaking changes: getrandom stays on 0.2.x, rand_core on 0.6.x for RustCrypto compatibility
 
+- **PKCS#8 Key Import/Export** (RFC 5208, RFC 5958, RFC 8410)
+  - Full PKCS#8 DER/PEM support for Ed25519 and X25519 private keys
+  - SPKI (SubjectPublicKeyInfo) DER/PEM support for public keys
+  - Standards-compliant implementation using `pkcs8` crate v0.10.2
+  - OpenSSL-compatible key formats
+  - Algorithm OIDs: Ed25519 (1.3.101.112), X25519 (1.3.101.110)
+  - 8 new methods: `to_pkcs8_der/pem`, `from_pkcs8_der/pem` for keypairs
+  - 8 new methods: `to_public_key_der/pem`, `from_public_key_der/pem` for public keys
+  - Comprehensive example in `examples/pkcs8_example.rs`
+  - All doc tests passing with roundtrip verification
+
 ### Planned
-- PKCS#8 key import/export for Ed25519/X25519
 - Streaming encryption API
 - SHA-3 and BLAKE2 support
 - Property-based testing with proptest

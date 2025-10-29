@@ -36,10 +36,13 @@ This document tracks planned features, improvements, and ongoing work for CrabGr
   - Complexity: Low (1 day) ✓
   - Status: **COMPLETED v0.2.0** - Full implementation with comprehensive example in `examples/serde_example.rs`
 
-- [ ] Add PKCS#8 import/export for keys
-  - Ed25519, X25519 key formats
-  - PEM encoding helpers
-  - Complexity: Medium (2 days)
+- [x] Add PKCS#8 import/export for keys
+  - Ed25519, X25519 key formats ✓
+  - PEM encoding helpers ✓
+  - DER binary encoding ✓
+  - SPKI (SubjectPublicKeyInfo) for public keys ✓
+  - Complexity: Medium (2 days) ✓
+  - Status: **COMPLETED v0.2.0** - Full implementation using `pkcs8` crate with proper RFC compliance, comprehensive example in `examples/pkcs8_example.rs`
 
 - [ ] Add streaming encryption API
   - For large files that don't fit in memory

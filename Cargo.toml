@@ -42,9 +42,10 @@ blake2 = { version = "0.10.6", optional = true }
 hmac = "0.12.1"
 
 # Asymmetric cryptography
-ed25519-dalek = { version = "2.2", features = ["rand_core"] }
+ed25519-dalek = { version = "2.2", features = ["rand_core", "pkcs8", "pem"] }
 x25519-dalek = { version = "2.0.1", features = ["static_secrets"] }
 rsa = { version = "0.9.8", optional = true, features = ["sha2"] }
+pkcs8 = { version = "0.10.2", features = ["pem", "alloc"] }
 
 # Random number generation
 getrandom = "0.2.16"
