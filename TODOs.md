@@ -29,10 +29,12 @@ This document tracks planned features, improvements, and ongoing work for CrabGr
   - Status: **COMPLETED v0.2.0** - `subtle` crate integrated, all critical paths audited in `docs/CONSTANT_TIME_AUDIT.md`
 
 ### API Improvements
-- [ ] Add `serde` support for keys and ciphertexts
-  - Enable serialization with `serde-support` feature
-  - Add examples for JSON/TOML serialization
-  - Complexity: Low (1 day)
+- [x] Add `serde` support for keys and ciphertexts
+  - Enable serialization with `serde-support` feature ✓
+  - Add examples for JSON/TOML/binary serialization ✓
+  - Works with Ciphertext, Ed25519 keys, signatures ✓
+  - Complexity: Low (1 day) ✓
+  - Status: **COMPLETED v0.2.0** - Full implementation with comprehensive example in `examples/serde_example.rs`
 
 - [ ] Add PKCS#8 import/export for keys
   - Ed25519, X25519 key formats

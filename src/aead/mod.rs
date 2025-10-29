@@ -14,14 +14,43 @@ pub use chacha20poly1305::ChaCha20Poly1305;
 ///
 /// Contains the nonce, ciphertext, and authentication tag in a single structure.
 /// Can be serialized to/from bytes for storage or transmission.
+///
+/// With the `serde-support` feature, this type can be serialized to JSON/TOML.
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(
+    feature = "serde-support",
+    derive(serde::Serialize, serde::Deserialize)
+)]
 pub struct Ciphertext {
     /// Nonce/IV used for this encryption (12 bytes for AES-GCM and ChaCha20-Poly1305)
+    #[cfg_attr(feature = "serde-support", serde(with = "serde_bytes_base64"))]
     pub nonce: Vec<u8>,
     /// Encrypted data
+    #[cfg_attr(feature = "serde-support", serde(with = "serde_bytes_base64"))]
     pub ciphertext: Vec<u8>,
     /// Authentication tag (16 bytes)
+    #[cfg_attr(feature = "serde-support", serde(with = "serde_bytes_base64"))]
     pub tag: Vec<u8>,
+}
+
+#[cfg(feature = "serde-support")]
+mod serde_bytes_base64 {
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    pub fn serialize<S>(bytes: &[u8], serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&crate::encoding::base64_encode(bytes))
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        crate::encoding::base64_decode(&s).map_err(serde::de::Error::custom)
+    }
 }
 
 impl Ciphertext {

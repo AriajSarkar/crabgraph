@@ -11,8 +11,49 @@ use ed25519_dalek::{
 use rand_core::OsRng;
 
 /// Ed25519 signature (64 bytes).
+///
+/// With the `serde-support` feature, signatures can be serialized to/from JSON/TOML as base64 strings.
 #[derive(Clone, Debug, PartialEq)]
-pub struct Ed25519Signature(pub [u8; SIGNATURE_LENGTH]);
+#[cfg_attr(
+    feature = "serde-support",
+    derive(serde::Serialize, serde::Deserialize)
+)]
+#[cfg_attr(feature = "serde-support", serde(transparent))]
+pub struct Ed25519Signature(
+    #[cfg_attr(feature = "serde-support", serde(with = "serde_sig_bytes"))]
+    pub  [u8; SIGNATURE_LENGTH],
+);
+
+#[cfg(feature = "serde-support")]
+mod serde_sig_bytes {
+    use super::SIGNATURE_LENGTH;
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    pub fn serialize<S>(bytes: &[u8; SIGNATURE_LENGTH], serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&crate::encoding::base64_encode(bytes))
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<[u8; SIGNATURE_LENGTH], D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        let bytes = crate::encoding::base64_decode(&s).map_err(serde::de::Error::custom)?;
+        if bytes.len() != SIGNATURE_LENGTH {
+            return Err(serde::de::Error::custom(format!(
+                "Expected {} bytes, got {}",
+                SIGNATURE_LENGTH,
+                bytes.len()
+            )));
+        }
+        let mut arr = [0u8; SIGNATURE_LENGTH];
+        arr.copy_from_slice(&bytes);
+        Ok(arr)
+    }
+}
 
 impl Ed25519Signature {
     /// Creates a signature from bytes.
@@ -59,8 +100,46 @@ impl Ed25519Signature {
 }
 
 /// Ed25519 public key (32 bytes).
+///
+/// With the `serde-support` feature, public keys can be serialized to/from JSON/TOML as base64 strings.
 #[derive(Clone, Debug, PartialEq)]
-pub struct Ed25519PublicKey(VerifyingKey);
+#[cfg_attr(
+    feature = "serde-support",
+    derive(serde::Serialize, serde::Deserialize)
+)]
+pub struct Ed25519PublicKey(
+    #[cfg_attr(feature = "serde-support", serde(with = "serde_pub_key"))] VerifyingKey,
+);
+
+#[cfg(feature = "serde-support")]
+mod serde_pub_key {
+    use super::{VerifyingKey, PUBLIC_KEY_LENGTH};
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    pub fn serialize<S>(key: &VerifyingKey, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&crate::encoding::base64_encode(key.as_bytes()))
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<VerifyingKey, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        let bytes = crate::encoding::base64_decode(&s).map_err(serde::de::Error::custom)?;
+        if bytes.len() != PUBLIC_KEY_LENGTH {
+            return Err(serde::de::Error::custom(format!(
+                "Expected {} bytes, got {}",
+                PUBLIC_KEY_LENGTH,
+                bytes.len()
+            )));
+        }
+        VerifyingKey::from_bytes(bytes[..PUBLIC_KEY_LENGTH].try_into().unwrap())
+            .map_err(serde::de::Error::custom)
+    }
+}
 
 impl Ed25519PublicKey {
     /// Creates a public key from bytes.

@@ -102,6 +102,36 @@ fn main() -> CrabResult<()> {
 }
 ```
 
+### Serialization (Serde)
+
+```rust
+use crabgraph::{aead::AesGcm256, asym::Ed25519KeyPair, CrabResult};
+
+fn main() -> CrabResult<()> {
+    // Encrypt data
+    let key = AesGcm256::generate_key()?;
+    let cipher = AesGcm256::new(&key)?;
+    let ciphertext = cipher.encrypt(b"Secret message", None)?;
+    
+    // Serialize to JSON
+    let json = serde_json::to_string(&ciphertext)?;
+    println!("Ciphertext JSON: {}", json);
+    
+    // Deserialize and decrypt
+    let restored: crabgraph::aead::Ciphertext = serde_json::from_str(&json)?;
+    let plaintext = cipher.decrypt(&restored, None)?;
+    
+    // Works with keys and signatures too
+    let keypair = Ed25519KeyPair::generate()?;
+    let pubkey_json = serde_json::to_string(&keypair.public_key())?;
+    
+    Ok(())
+}
+```
+
+See `examples/serde_example.rs` for JSON, TOML, and binary serialization examples.
+```
+
 ### HMAC Authentication
 
 ```rust

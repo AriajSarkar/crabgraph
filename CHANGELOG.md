@@ -25,6 +25,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added security notes to MAC verification functions
   - Documented guidelines for when to use constant-time comparisons
 
+- **Serde Serialization Support** (behind `serde-support` feature flag)
+  - Full serialization/deserialization for `Ciphertext` (encrypted data)
+  - Serialization for Ed25519 public keys and signatures
+  - Support for JSON, TOML, bincode, and all serde formats
+  - Comprehensive example demonstrating usage patterns
+  - Binary serialization ~55% more compact than JSON
+  - Perfect for storing encrypted data and cryptographic keys
+
+- **Dependency Updates** - Updated 21 packages to latest stable versions
+  - RustCrypto: aes-gcm 0.10.3, chacha20poly1305 0.10.1, pbkdf2 0.12.2, argon2 0.5.3
+  - Asymmetric: ed25519-dalek 2.2.0 (from 2.1), x25519-dalek 2.0.1
+  - Security: zeroize 1.8.2, subtle 2.6.1 (new)
+  - Encoding: base64 0.22.1
+  - Dev deps: proptest 1.9.0 (from 1.5.0), hex-literal 1.1.0, serde_json 1.0.141, serde_bytes 0.11.19
+  - All tests passing (177 with all features, 166 with serde-support)
+  - Avoided breaking changes: getrandom stays on 0.2.x, rand_core on 0.6.x for RustCrypto compatibility
+
 ### Planned
 - PKCS#8 key import/export for Ed25519/X25519
 - Streaming encryption API
