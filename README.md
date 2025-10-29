@@ -172,7 +172,6 @@ fn main() -> CrabResult<()> {
 ```
 
 See `examples/serde_example.rs` for JSON, TOML, and binary serialization examples.
-```
 
 ### HMAC Authentication
 

@@ -156,7 +156,7 @@ impl Aes256GcmStreamDecryptor {
     /// # Arguments
     ///
     /// * `key` - A 32-byte AES-256 key (must match the encryption key)
-    /// * `nonce` - The 12-byte nonce from the encryption process
+    /// * `nonce` - The 7-byte nonce from the encryption process
     ///
     /// # Errors
     ///
@@ -300,7 +300,7 @@ impl ChaCha20Poly1305StreamDecryptor {
     /// # Arguments
     ///
     /// * `key` - A 32-byte ChaCha20-Poly1305 key (must match the encryption key)
-    /// * `nonce` - The 12-byte nonce from the encryption process
+    /// * `nonce` - The 7-byte nonce from the encryption process
     ///
     /// # Errors
     ///
