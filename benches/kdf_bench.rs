@@ -53,8 +53,7 @@ fn kdf_benchmarks(c: &mut Criterion) {
 }
 
 fn configure_criterion() -> Criterion {
-    Criterion::default()
-        .output_directory(Path::new("benches/generated"))
+    Criterion::default().output_directory(Path::new("benches/generated"))
 }
 
 criterion_group! {

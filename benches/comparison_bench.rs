@@ -12,8 +12,8 @@ use crabgraph::hash::{sha256, sha512};
 use crabgraph::mac::{hmac_sha256, hmac_sha512};
 
 // Direct RustCrypto imports
-use sha2::{Digest, Sha256, Sha512};
 use hmac::{Hmac, Mac};
+use sha2::{Digest, Sha256, Sha512};
 
 type HmacSha256 = Hmac<Sha256>;
 type HmacSha512 = Hmac<Sha512>;
@@ -27,26 +27,18 @@ fn compare_aead_wrapper(c: &mut Criterion) {
         group.throughput(Throughput::Bytes(*size as u64));
 
         // CrabGraph AES-256-GCM encryption
-        group.bench_with_input(
-            BenchmarkId::new("aes256_encrypt", size),
-            size,
-            |b, _| {
-                let key = AesGcm256::generate_key().unwrap();
-                let cipher = AesGcm256::new(&key).unwrap();
-                b.iter(|| cipher.encrypt(black_box(&data), None).unwrap());
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("aes256_encrypt", size), size, |b, _| {
+            let key = AesGcm256::generate_key().unwrap();
+            let cipher = AesGcm256::new(&key).unwrap();
+            b.iter(|| cipher.encrypt(black_box(&data), None).unwrap());
+        });
 
         // CrabGraph ChaCha20-Poly1305 encryption
-        group.bench_with_input(
-            BenchmarkId::new("chacha20_encrypt", size),
-            size,
-            |b, _| {
-                let key = ChaCha20Poly1305::generate_key().unwrap();
-                let cipher = ChaCha20Poly1305::new(&key).unwrap();
-                b.iter(|| cipher.encrypt(black_box(&data), None).unwrap());
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("chacha20_encrypt", size), size, |b, _| {
+            let key = ChaCha20Poly1305::generate_key().unwrap();
+            let cipher = ChaCha20Poly1305::new(&key).unwrap();
+            b.iter(|| cipher.encrypt(black_box(&data), None).unwrap());
+        });
     }
 
     group.finish();
@@ -188,8 +180,7 @@ fn overhead_analysis(c: &mut Criterion) {
 }
 
 fn configure_criterion() -> Criterion {
-    Criterion::default()
-        .output_directory(Path::new("benches/generated"))
+    Criterion::default().output_directory(Path::new("benches/generated"))
 }
 
 criterion_group! {

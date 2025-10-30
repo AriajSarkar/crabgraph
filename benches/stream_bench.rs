@@ -1,6 +1,5 @@
 use crabgraph::aead::stream::{
-    Aes256GcmStreamDecryptor, Aes256GcmStreamEncryptor,
-    ChaCha20Poly1305StreamEncryptor,
+    Aes256GcmStreamDecryptor, Aes256GcmStreamEncryptor, ChaCha20Poly1305StreamEncryptor,
 };
 use crabgraph::rand::secure_bytes;
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
@@ -75,10 +74,7 @@ fn stream_encryption_benchmarks(c: &mut Criterion) {
 
         // ChaCha20-Poly1305 streaming encryption
         group.bench_with_input(
-            BenchmarkId::new(
-                "chacha20_stream_encrypt",
-                format!("{}MB", size_kb / 1024),
-            ),
+            BenchmarkId::new("chacha20_stream_encrypt", format!("{}MB", size_kb / 1024)),
             &size,
             |b, _| {
                 b.iter(|| {
@@ -174,8 +170,7 @@ fn stream_vs_memory_benchmarks(c: &mut Criterion) {
 }
 
 fn configure_criterion() -> Criterion {
-    Criterion::default()
-        .output_directory(Path::new("benches/generated"))
+    Criterion::default().output_directory(Path::new("benches/generated"))
 }
 
 criterion_group! {
