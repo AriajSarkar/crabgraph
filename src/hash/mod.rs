@@ -1,9 +1,10 @@
-//! Hashing utilities using SHA-2, SHA-3, and BLAKE2 families.
+//! Hashing utilities using SHA-2, SHA-3, BLAKE2, and BLAKE3 families.
 //!
 //! This module provides convenient wrappers around:
 //! - SHA-256 and SHA-512 (always available)
 //! - SHA3-256 and SHA3-512 (with `extended-hashes` feature)
 //! - BLAKE2b-512 and BLAKE2s-256 (with `extended-hashes` feature)
+//! - BLAKE3 (with `extended-hashes` feature)
 
 use sha2::{Digest, Sha256, Sha512};
 
@@ -12,6 +13,9 @@ use sha3::{Sha3_256, Sha3_512};
 
 #[cfg(feature = "extended-hashes")]
 use blake2::{Blake2b512, Blake2s256};
+
+#[cfg(feature = "extended-hashes")]
+use blake3::Hasher as Blake3Hasher;
 
 /// SHA-256 digest output (32 bytes).
 pub type Sha256Digest = [u8; 32];
@@ -34,6 +38,12 @@ pub type Blake2s256Digest = [u8; 32];
 /// BLAKE2b-512 digest output (64 bytes).
 #[cfg(feature = "extended-hashes")]
 pub type Blake2b512Digest = [u8; 64];
+
+/// BLAKE3 digest output (32 bytes, default size).
+///
+/// BLAKE3 can produce variable-length output, but we use the standard 32-byte size.
+#[cfg(feature = "extended-hashes")]
+pub type Blake3Digest = [u8; 32];
 
 /// Computes SHA-256 hash of the input data.
 ///
@@ -258,6 +268,86 @@ pub fn blake2b_512_hex(data: &[u8]) -> String {
     hex::encode(blake2b_512(data))
 }
 
+// ============================================================================
+// BLAKE3 - Fastest hash function with parallel computation
+// ============================================================================
+
+/// Computes BLAKE3 hash of the input data.
+///
+/// BLAKE3 is the fastest cryptographic hash function available and supports
+/// parallel computation on multi-core systems. It's based on Bao (verified streaming)
+/// and is significantly faster than BLAKE2.
+///
+/// **Requires**: `extended-hashes` feature flag
+///
+/// # Performance
+/// BLAKE3 is typically 5-10x faster than SHA-256 and can utilize multiple CPU cores
+/// for very large inputs (>16KB). It's the fastest option in this library.
+///
+/// # Security
+/// BLAKE3 provides 256-bit security (output is 32 bytes by default, but can be
+/// extended to any length). It's designed to be secure against all known attacks.
+///
+/// # Use Cases
+/// - High-throughput applications (logging, file integrity, checksums)
+/// - Large file hashing (benefits from parallelization)
+/// - Content-addressable storage systems
+/// - Modern replacements for SHA-256 where speed is critical
+///
+/// # Example
+/// ```ignore
+/// use crabgraph::hash::blake3_hash;
+///
+/// let digest = blake3_hash(b"hello world");
+/// assert_eq!(digest.len(), 32);
+/// ```
+#[cfg(feature = "extended-hashes")]
+pub fn blake3_hash(data: &[u8]) -> Blake3Digest {
+    let mut hasher = Blake3Hasher::new();
+    hasher.update(data);
+    let hash = hasher.finalize();
+    *hash.as_bytes()
+}
+
+/// Computes BLAKE3 hash with hex-encoded output.
+///
+/// **Requires**: `extended-hashes` feature flag
+///
+/// # Example
+/// ```ignore
+/// use crabgraph::hash::blake3_hex;
+///
+/// let hex_digest = blake3_hex(b"hello");
+/// assert_eq!(hex_digest.len(), 64); // 32 bytes * 2 hex chars
+/// ```
+#[cfg(feature = "extended-hashes")]
+pub fn blake3_hex(data: &[u8]) -> String {
+    hex::encode(blake3_hash(data))
+}
+
+/// Creates a BLAKE3 hasher for incremental hashing.
+///
+/// This is useful when you want to hash data incrementally (streaming)
+/// rather than all at once. BLAKE3 can take advantage of multi-threading
+/// for large inputs.
+///
+/// **Requires**: `extended-hashes` feature flag
+///
+/// # Example
+/// ```ignore
+/// use crabgraph::hash::blake3_hasher;
+///
+/// let mut hasher = blake3_hasher();
+/// hasher.update(b"hello ");
+/// hasher.update(b"world");
+/// let digest = hasher.finalize();
+/// assert_eq!(digest.as_bytes().len(), 32);
+/// ```
+#[cfg(feature = "extended-hashes")]
+pub fn blake3_hasher() -> Blake3Hasher {
+    Blake3Hasher::new()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -423,6 +513,85 @@ mod tests {
     }
 
     // ========================================================================
+    // BLAKE3 Tests (extended-hashes feature)
+    // ========================================================================
+
+    #[test]
+    #[cfg(feature = "extended-hashes")]
+    fn test_blake3_empty() {
+        // BLAKE3 of empty string (official test vector)
+        let expected = hex!("af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262");
+        let digest = blake3_hash(b"");
+        assert_eq!(digest, expected);
+    }
+
+    #[test]
+    #[cfg(feature = "extended-hashes")]
+    fn test_blake3_hello_world() {
+        // BLAKE3 of "hello world" (official test vector)
+        let expected = hex!("d74981efa70a0c880b8d8c1985d075dbcbf679b99a5f9914e5aaf96b831a9e24");
+        let digest = blake3_hash(b"hello world");
+        assert_eq!(digest, expected);
+    }
+
+    #[test]
+    #[cfg(feature = "extended-hashes")]
+    fn test_blake3_abc() {
+        // BLAKE3 of "abc"
+        let digest = blake3_hash(b"abc");
+        assert_eq!(digest.len(), 32);
+    }
+
+    #[test]
+    #[cfg(feature = "extended-hashes")]
+    fn test_blake3_hex() {
+        let hex_digest = blake3_hex(b"test");
+        assert_eq!(hex_digest.len(), 64); // 32 bytes * 2
+    }
+
+    #[test]
+    #[cfg(feature = "extended-hashes")]
+    fn test_blake3_incremental() {
+        // Test incremental hashing
+        let mut hasher = blake3_hasher();
+        hasher.update(b"hello ");
+        hasher.update(b"world");
+        let digest1 = hasher.finalize();
+
+        // Compare with one-shot hashing
+        let digest2 = blake3_hash(b"hello world");
+
+        assert_eq!(digest1.as_bytes(), &digest2);
+    }
+
+    #[test]
+    #[cfg(feature = "extended-hashes")]
+    fn test_blake3_large_data() {
+        // Test with larger data (BLAKE3 shines with larger inputs)
+        let data = vec![0u8; 1024 * 1024]; // 1 MB of zeros
+        let digest = blake3_hash(&data);
+        assert_eq!(digest.len(), 32);
+
+        // Verify it's deterministic
+        let digest2 = blake3_hash(&data);
+        assert_eq!(digest, digest2);
+    }
+
+    #[test]
+    #[cfg(feature = "extended-hashes")]
+    fn test_blake3_different_from_others() {
+        let data = b"test data";
+
+        let blake3_out = blake3_hash(data);
+        let blake2b_out = blake2b_512(data);
+        let sha256_out = sha256(data);
+
+        // BLAKE3 should produce different output than others
+        assert_ne!(&blake3_out[..], &blake2b_out[..32]);
+        assert_ne!(&blake3_out[..], &sha256_out[..]);
+    }
+
+    // ========================================================================
     // Performance comparison tests (informational)
     // ========================================================================
 
@@ -438,11 +607,15 @@ mod tests {
         let sha3_512_out = sha3_512(data);
         let blake2s_out = blake2s_256(data);
         let blake2b_out = blake2b_512(data);
+        let blake3_out = blake3_hash(data);
 
         // Verify different outputs (just checking a few pairs)
         assert_ne!(&sha256_out[..], &sha3_256_out[..]);
         assert_ne!(&sha256_out[..], &blake2s_out[..]);
+        assert_ne!(&sha256_out[..], &blake3_out[..]);
         assert_ne!(&sha512_out[..], &sha3_512_out[..]);
         assert_ne!(&sha512_out[..], &blake2b_out[..]);
+        assert_ne!(&blake2s_out[..], &blake3_out[..]);
+        assert_ne!(&blake2b_out[..32], &blake3_out[..]);
     }
 }

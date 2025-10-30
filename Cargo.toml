@@ -37,6 +37,7 @@ hkdf = "0.12.4"
 sha2 = { version = "0.10.9", features = ["oid"] }
 sha3 = { version = "0.10.8", optional = true }
 blake2 = { version = "0.10.6", optional = true }
+blake3 = { version = "1.5.5", optional = true }
 
 # Message Authentication Codes
 hmac = "0.12.1"
@@ -85,7 +86,7 @@ default = ["std"]
 std = ["aes-gcm/std", "chacha20poly1305/std", "argon2/std"]
 alloc = ["aes-gcm/alloc", "chacha20poly1305/alloc"]
 no_std = []
-extended-hashes = ["sha3", "blake2"]
+extended-hashes = ["sha3", "blake2", "blake3"]
 rsa-support = ["rsa"]
 serde-support = ["serde"]
 zero-copy = ["bytes"]

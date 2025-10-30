@@ -125,7 +125,7 @@ pub use hash::{sha256, sha512};
 
 // Re-export extended hash functions (when feature is enabled)
 #[cfg(feature = "extended-hashes")]
-pub use hash::{blake2b_512, blake2s_256, sha3_256, sha3_512};
+pub use hash::{blake2b_512, blake2s_256, blake3_hash, blake3_hex, sha3_256, sha3_512};
 
 pub use kdf::{argon2_derive, hkdf_extract_expand, pbkdf2_derive};
 pub use mac::{hmac_sha256, hmac_sha256_verify};
