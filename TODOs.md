@@ -81,10 +81,17 @@ This document tracks planned features, improvements, and ongoing work for CrabGr
   - Status: **COMPLETED** - Fastest option, excellent for high-throughput, content-addressable storage
 
 ### Key Management
-- [ ] Add key rotation helpers
-  - API for versioning keys
-  - Re-encryption utilities
-  - Complexity: Medium (3 days)
+- [x] Add key rotation helpers
+  - API for versioning keys ✓
+  - Re-encryption utilities ✓
+  - KeyRotationManager for managing multiple key versions ✓
+  - Support for AES-GCM and ChaCha20-Poly1305 ✓
+  - Automatic old key cleanup with configurable max versions ✓
+  - 17 comprehensive tests ✓
+  - Full example demonstrating real-world usage ✓
+  - Complexity: Medium (3 days) ✓
+  - Actual: ~2 hours ✓
+  - Status: **COMPLETED** - Production-ready key rotation with zero-downtime support
 
 - [ ] Add key wrapping (AES-KW)
   - RFC 3394 key wrap
