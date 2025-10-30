@@ -93,10 +93,18 @@ This document tracks planned features, improvements, and ongoing work for CrabGr
   - Actual: ~2 hours ✓
   - Status: **COMPLETED** - Production-ready key rotation with zero-downtime support
 
-- [ ] Add key wrapping (AES-KW)
-  - RFC 3394 key wrap
-  - For encrypting keys with KEKs
-  - Complexity: Medium (2 days)
+- [x] Add key wrapping (AES-KW)
+  - RFC 3394 key wrap ✓
+  - For encrypting key material with KEKs (Key Encryption Keys) ✓
+  - Kw128, Kw256, Kw192 support (all AES key sizes) ✓
+  - Deterministic encryption by design (wraps keys, not general data) ✓
+  - Built-in integrity protection with IV checking ✓
+  - RFC 3394 official test vectors from sections 4.1 and 4.6 ✓
+  - 15 comprehensive tests covering all scenarios ✓
+  - Full example with 6 demos (basic, HSM workflow, error handling, etc.) ✓
+  - Complexity: Medium (2 days) ✓
+  - Actual: ~1 hour ✓
+  - Status: **COMPLETED** - Production-ready RFC 3394 compliance for HSM/key distribution
 
 ### Testing
 - [ ] Add property-based tests with `proptest`

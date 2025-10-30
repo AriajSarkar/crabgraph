@@ -28,6 +28,9 @@ exclude = [
 aes-gcm = { version = "0.10.3", features = ["std", "stream"] }
 chacha20poly1305 = { version = "0.10.1", features = ["std", "stream"] }
 
+# Key wrapping
+aes-kw = "0.2.1"
+
 # Key derivation functions
 pbkdf2 = { version = "0.12.2", features = ["simple"] }
 argon2 = { version = "0.5.3", features = ["std"] }

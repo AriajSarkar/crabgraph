@@ -113,6 +113,7 @@ pub mod errors;
 pub mod hash;
 pub mod kdf;
 pub mod key_rotation;
+pub mod kw;
 pub mod mac;
 pub mod rand;
 pub mod secrets;
