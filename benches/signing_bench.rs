@@ -1,9 +1,11 @@
 #[cfg(feature = "rsa-support")]
 use crabgraph::asym::RsaKeyPair;
 use crabgraph::asym::{Ed25519KeyPair, X25519KeyPair};
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, Criterion};
 use std::hint::black_box;
 use std::path::Path;
+
+mod bench_utils;
 
 fn signing_benchmarks(c: &mut Criterion) {
     let mut group = c.benchmark_group("signing");
@@ -98,7 +100,9 @@ fn rsa_benchmarks(c: &mut Criterion) {
 }
 
 fn configure_criterion() -> Criterion {
-    Criterion::default().output_directory(Path::new("benches/generated"))
+    Criterion::default()
+        .output_directory(Path::new("target/criterion"))
+        .with_output_color(true)
 }
 
 #[cfg(feature = "rsa-support")]
@@ -115,4 +119,12 @@ criterion_group! {
     targets = signing_benchmarks, key_exchange_benchmarks
 }
 
-criterion_main!(benches);
+fn main() {
+    benches();
+    
+    // Organize benchmark results after all benchmarks complete
+    println!("\n📊 Organizing benchmark results...");
+    bench_utils::organize_benchmark_results();
+}
+
+// criterion_main!(benches);

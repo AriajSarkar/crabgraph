@@ -2,9 +2,11 @@ use crabgraph::aead::stream::{
     Aes256GcmStreamDecryptor, Aes256GcmStreamEncryptor, ChaCha20Poly1305StreamEncryptor,
 };
 use crabgraph::rand::secure_bytes;
-use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, BenchmarkId, Criterion, Throughput};
 use std::hint::black_box;
 use std::path::Path;
+
+mod bench_utils;
 
 /// Benchmark streaming encryption for different file sizes
 fn stream_encryption_benchmarks(c: &mut Criterion) {
@@ -170,7 +172,9 @@ fn stream_vs_memory_benchmarks(c: &mut Criterion) {
 }
 
 fn configure_criterion() -> Criterion {
-    Criterion::default().output_directory(Path::new("benches/generated"))
+    Criterion::default()
+        .output_directory(Path::new("target/criterion"))
+        .with_output_color(true)
 }
 
 criterion_group! {
@@ -178,4 +182,10 @@ criterion_group! {
     config = configure_criterion();
     targets = stream_encryption_benchmarks, chunk_size_benchmarks, stream_vs_memory_benchmarks
 }
-criterion_main!(benches);
+
+fn main() {
+    benches();
+    println!("\n📊 Organizing benchmark results...");
+    bench_utils::organize_benchmark_results();
+}
+// criterion_main!(benches);

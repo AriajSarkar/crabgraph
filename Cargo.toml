@@ -127,6 +127,10 @@ harness = false
 name = "comparison_bench"
 harness = false
 
+[[bench]]
+name = "key_wrap_bench"
+harness = false
+
 [profile.release]
 opt-level = 3
 lto = true

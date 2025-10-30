@@ -2,9 +2,11 @@
 ///
 /// This benchmark measures the overhead of CrabGraph's wrapper layer
 /// compared to using RustCrypto primitives directly.
-use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, BenchmarkId, Criterion, Throughput};
 use std::hint::black_box;
 use std::path::Path;
+
+mod bench_utils;
 
 // CrabGraph imports
 use crabgraph::aead::{AesGcm256, ChaCha20Poly1305, CrabAead};
@@ -180,7 +182,9 @@ fn overhead_analysis(c: &mut Criterion) {
 }
 
 fn configure_criterion() -> Criterion {
-    Criterion::default().output_directory(Path::new("benches/generated"))
+    Criterion::default()
+        .output_directory(Path::new("target/criterion"))
+        .with_output_color(true)
 }
 
 criterion_group! {
@@ -188,4 +192,10 @@ criterion_group! {
     config = configure_criterion();
     targets = compare_aead_wrapper, compare_sha256, compare_sha512, compare_hmac_sha256, compare_hmac_sha512, overhead_analysis
 }
-criterion_main!(benches);
+
+fn main() {
+    benches();
+    println!("\n📊 Organizing benchmark results...");
+    bench_utils::organize_benchmark_results();
+}
+// criterion_main!(benches);
