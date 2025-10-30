@@ -75,7 +75,7 @@ criterion_group! {
 
 fn main() {
     benches();
-    
+
     // Organize benchmark results after all benchmarks complete
     println!("\n📊 Organizing benchmark results...");
     bench_utils::organize_benchmark_results();

@@ -8,7 +8,7 @@ pub fn organize_benchmark_results() {
     #[cfg(target_os = "windows")]
     {
         let result = Command::new("powershell")
-            .args(&[
+            .args([
                 "-NoProfile",
                 "-ExecutionPolicy",
                 "Bypass",
@@ -37,9 +37,7 @@ pub fn organize_benchmark_results() {
     #[cfg(not(target_os = "windows"))]
     {
         // On Unix systems, try to run with bash if available
-        let result = Command::new("bash")
-            .args(&["scripts/organize_benchmarks.sh"])
-            .output();
+        let result = Command::new("bash").args(&["scripts/organize_benchmarks.sh"]).output();
 
         match result {
             Ok(output) => {
