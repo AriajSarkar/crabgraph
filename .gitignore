@@ -29,6 +29,9 @@ cobertura.xml
 # Benchmarking
 criterion/
 benchmark_output.txt
+benches/generated/*
+!benches/generated/README.md
+!benches/generated/index.html
 
 # Documentation
 target/doc/

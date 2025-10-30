@@ -112,6 +112,8 @@ pub mod encoding;
 pub mod errors;
 pub mod hash;
 pub mod kdf;
+pub mod key_rotation;
+pub mod kw;
 pub mod mac;
 pub mod rand;
 pub mod secrets;
@@ -122,6 +124,11 @@ pub use aead::{AesGcm256, ChaCha20Poly1305, Ciphertext, CrabAead};
 pub use asym::{Ed25519KeyPair, X25519KeyPair};
 pub use errors::{CrabError, CrabResult};
 pub use hash::{sha256, sha512};
+
+// Re-export extended hash functions (when feature is enabled)
+#[cfg(feature = "extended-hashes")]
+pub use hash::{blake2b_512, blake2s_256, blake3_hash, blake3_hex, sha3_256, sha3_512};
+
 pub use kdf::{argon2_derive, hkdf_extract_expand, pbkdf2_derive};
 pub use mac::{hmac_sha256, hmac_sha256_verify};
 pub use secrets::{SecretArray, SecretVec};

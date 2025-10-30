@@ -1,6 +1,6 @@
 [package]
 name = "crabgraph"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Raj Sarkar <ariajsarkar@gmail.com>"]
 edition = "2021"
 rust-version = "1.70"
@@ -28,6 +28,9 @@ exclude = [
 aes-gcm = { version = "0.10.3", features = ["std", "stream"] }
 chacha20poly1305 = { version = "0.10.1", features = ["std", "stream"] }
 
+# Key wrapping
+aes-kw = "0.2.1"
+
 # Key derivation functions
 pbkdf2 = { version = "0.12.2", features = ["simple"] }
 argon2 = { version = "0.5.3", features = ["std"] }
@@ -37,6 +40,7 @@ hkdf = "0.12.4"
 sha2 = { version = "0.10.9", features = ["oid"] }
 sha3 = { version = "0.10.8", optional = true }
 blake2 = { version = "0.10.6", optional = true }
+blake3 = { version = "1.5.5", optional = true }
 
 # Message Authentication Codes
 hmac = "0.12.1"
@@ -85,7 +89,7 @@ default = ["std"]
 std = ["aes-gcm/std", "chacha20poly1305/std", "argon2/std"]
 alloc = ["aes-gcm/alloc", "chacha20poly1305/alloc"]
 no_std = []
-extended-hashes = ["sha3", "blake2"]
+extended-hashes = ["sha3", "blake2", "blake3"]
 rsa-support = ["rsa"]
 serde-support = ["serde"]
 zero-copy = ["bytes"]
@@ -99,6 +103,10 @@ required-features = ["rsa-support"]
 name = "serde_example"
 required-features = ["serde-support"]
 
+[[example]]
+name = "extended_hashes_example"
+required-features = ["extended-hashes"]
+
 [[bench]]
 name = "aead_bench"
 harness = false
@@ -109,6 +117,18 @@ harness = false
 
 [[bench]]
 name = "signing_bench"
+harness = false
+
+[[bench]]
+name = "stream_bench"
+harness = false
+
+[[bench]]
+name = "comparison_bench"
+harness = false
+
+[[bench]]
+name = "key_wrap_bench"
 harness = false
 
 [profile.release]

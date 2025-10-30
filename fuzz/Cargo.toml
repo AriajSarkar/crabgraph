@@ -23,3 +23,45 @@ name = "kdf_fuzz"
 path = "fuzz_targets/kdf_fuzz.rs"
 test = false
 doc = false
+
+[[bin]]
+name = "key_wrap_fuzz"
+path = "fuzz_targets/key_wrap_fuzz.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "encoding_fuzz"
+path = "fuzz_targets/encoding_fuzz.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "hash_fuzz"
+path = "fuzz_targets/hash_fuzz.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "mac_fuzz"
+path = "fuzz_targets/mac_fuzz.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "stream_fuzz"
+path = "fuzz_targets/stream_fuzz.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "ed25519_fuzz"
+path = "fuzz_targets/ed25519_fuzz.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "x25519_fuzz"
+path = "fuzz_targets/x25519_fuzz.rs"
+test = false
+doc = false

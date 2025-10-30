@@ -1,6 +1,9 @@
 use crabgraph::aead::{AesGcm256, ChaCha20Poly1305, CrabAead};
-use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, BenchmarkId, Criterion, Throughput};
 use std::hint::black_box;
+use std::path::Path;
+
+mod bench_utils;
 
 fn aead_benchmarks(c: &mut Criterion) {
     let mut group = c.benchmark_group("aead");
@@ -58,5 +61,24 @@ fn key_generation_benchmarks(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, aead_benchmarks, key_generation_benchmarks);
-criterion_main!(benches);
+fn configure_criterion() -> Criterion {
+    Criterion::default()
+        .output_directory(Path::new("target/criterion"))
+        .with_output_color(true)
+}
+
+criterion_group! {
+    name = benches;
+    config = configure_criterion();
+    targets = aead_benchmarks, key_generation_benchmarks
+}
+
+fn main() {
+    benches();
+
+    // Organize benchmark results after all benchmarks complete
+    println!("\n📊 Organizing benchmark results...");
+    bench_utils::organize_benchmark_results();
+}
+
+// criterion_main!(benches);

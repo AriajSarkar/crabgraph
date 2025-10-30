@@ -2,8 +2,11 @@ use crabgraph::kdf::{
     argon2_derive, argon2_derive_with_params, hkdf_sha256, pbkdf2_derive_sha256, Argon2Params,
     PBKDF2_SHA256_RECOMMENDED_ITERATIONS,
 };
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, Criterion};
 use std::hint::black_box;
+use std::path::Path;
+
+mod bench_utils;
 
 fn kdf_benchmarks(c: &mut Criterion) {
     let mut group = c.benchmark_group("kdf");
@@ -51,5 +54,24 @@ fn kdf_benchmarks(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, kdf_benchmarks);
-criterion_main!(benches);
+fn configure_criterion() -> Criterion {
+    Criterion::default()
+        .output_directory(Path::new("target/criterion"))
+        .with_output_color(true)
+}
+
+criterion_group! {
+    name = benches;
+    config = configure_criterion();
+    targets = kdf_benchmarks
+}
+
+fn main() {
+    benches();
+
+    // Organize benchmark results after all benchmarks complete
+    println!("\n📊 Organizing benchmark results...");
+    bench_utils::organize_benchmark_results();
+}
+
+// criterion_main!(benches);
