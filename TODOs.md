@@ -56,13 +56,18 @@ This document tracks planned features, improvements, and ongoing work for CrabGr
 ## Medium Priority (v0.3.0)
 
 ### Extended Algorithms
-- [ ] Add SHA-3 support (behind `extended-hashes` feature)
-  - Implementation: Already in dependencies, just expose
-  - Complexity: Low (0.5 day)
+- [x] Add SHA-3 support (behind `extended-hashes` feature)
+  - Implementation: Already in dependencies, just expose ✓
+  - SHA3-256 and SHA3-512 with NIST test vectors ✓
+  - Complexity: Low (0.5 day) ✓
+  - Status: **COMPLETED** - Full implementation with 6 tests and comprehensive example
 
-- [ ] Add BLAKE2 support (behind `extended-hashes` feature)
-  - For high-performance hashing
-  - Complexity: Low (0.5 day)
+- [x] Add BLAKE2 support (behind `extended-hashes` feature)
+  - For high-performance hashing ✓
+  - BLAKE2s-256 (32-bit optimized) and BLAKE2b-512 (64-bit optimized) ✓
+  - Official test vectors included ✓
+  - Complexity: Low (0.5 day) ✓
+  - Status: **COMPLETED** - 2-3x faster than SHA-2, comprehensive example in `examples/extended_hashes_example.rs`
 
 - [ ] Add BLAKE3 support
   - Fastest hash function

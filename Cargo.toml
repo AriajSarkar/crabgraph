@@ -1,6 +1,6 @@
 [package]
 name = "crabgraph"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Raj Sarkar <ariajsarkar@gmail.com>"]
 edition = "2021"
 rust-version = "1.70"
@@ -98,6 +98,10 @@ required-features = ["rsa-support"]
 [[example]]
 name = "serde_example"
 required-features = ["serde-support"]
+
+[[example]]
+name = "extended_hashes_example"
+required-features = ["extended-hashes"]
 
 [[bench]]
 name = "aead_bench"
