@@ -33,7 +33,7 @@ cargo bench --bench comparison_bench
 
 ## Viewing Results
 
-1. **HTML Reports**: Open `benches/generated/report/index.html` in your browser
+1. **HTML Reports**: Open `benches/generated/index.html` in your browser
 2. **Command Line**: Results are printed to terminal during benchmark runs
 
 ## Notes
