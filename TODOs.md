@@ -107,10 +107,20 @@ This document tracks planned features, improvements, and ongoing work for CrabGr
   - Status: **COMPLETED** - Production-ready RFC 3394 compliance for HSM/key distribution
 
 ### Testing
-- [ ] Add property-based tests with `proptest`
-  - Encrypt/decrypt round-trips
-  - Key derivation consistency
-  - Complexity: Low (1 day)
+- [x] Add property-based tests with `proptest`
+  - Encrypt/decrypt round-trips for all AEAD ciphers ✓
+  - Key derivation consistency (PBKDF2, HKDF) ✓
+  - Key wrapping round-trips (Kw128/192/256) ✓
+  - Encoding/decoding (base64, hex) ✓
+  - Hash function properties (determinism, output lengths) ✓
+  - MAC properties (HMAC-SHA256/512) ✓
+  - 37 comprehensive property tests ✓
+  - Optimized with reduced case counts (20 cases vs default 256) ✓
+  - Runs in ~1.7 seconds ✓
+  - Slow tests (Argon2, edge cases) commented out with explanations ✓
+  - Complexity: Low (1 day) ✓
+  - Actual: ~1 hour ✓
+  - Status: **COMPLETED** - Production-ready property testing with excellent coverage
 
 - [ ] Expand fuzzing coverage
   - More fuzz targets
