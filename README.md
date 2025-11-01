@@ -44,7 +44,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-crabgraph = "0.1"
+crabgraph = "0.3"
 ```
 
 ### Authenticated Encryption (AES-GCM)
