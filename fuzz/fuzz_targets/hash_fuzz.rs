@@ -4,8 +4,8 @@ use libfuzzer_sys::fuzz_target;
 use crabgraph::hash::{sha256, sha256_hex, sha512, sha512_hex};
 
 fuzz_target!(|data: &[u8]| {
-    // Limit input size
-    if data.len() > 100000 {
+    // Limit input size to prevent DoS (hashing is O(n) but can be slow on huge inputs)
+    if data.len() > 10000 {
         return;
     }
 

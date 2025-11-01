@@ -1,0 +1,78 @@
+# Lightweight Rust fuzzing image based on Debian Slim (compatible with sanitizers)
+FROM rust:slim AS builder
+
+# Install required build tools
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install nightly toolchain and cargo-fuzz
+RUN rustup default nightly && \
+    cargo install cargo-fuzz
+
+# Production image
+FROM rust:slim
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy cargo-fuzz from builder
+COPY --from=builder /usr/local/cargo/bin/cargo-fuzz /usr/local/cargo/bin/cargo-fuzz
+
+# Set nightly as default
+RUN rustup default nightly
+
+WORKDIR /workspace
+
+# Copy Cargo files first for better layer caching
+COPY Cargo.toml Cargo.lock ./
+COPY fuzz/Cargo.toml ./fuzz/
+
+# Create dummy src to build dependencies (caching layer)
+RUN mkdir src && \
+    echo "fn main() {}" > src/lib.rs && \
+    mkdir -p fuzz/fuzz_targets && \
+    echo "#![no_main]\nuse libfuzzer_sys::fuzz_target;\nfuzz_target!(|_data: &[u8]| {});" > fuzz/fuzz_targets/dummy.rs
+
+# Build dependencies to cache them
+RUN cd fuzz && cargo +nightly build --release 2>/dev/null || true
+
+# Remove dummy files
+RUN rm -rf src fuzz/fuzz_targets/dummy.rs
+
+# Copy actual source code
+COPY src ./src
+COPY fuzz ./fuzz
+
+# Default command runs all fuzz targets for 60 seconds each
+# Cleans up old artifacts before starting
+CMD ["sh", "-c", "cd fuzz && \
+    echo '=========================================='; \
+    echo 'Cleaning old artifacts...'; \
+    echo '=========================================='; \
+    rm -rf artifacts/*/* 2>/dev/null || true; \
+    echo 'Old artifacts removed. Starting fuzzing...' && \
+    echo '' && \
+    for target in fuzz_targets/*.rs; do \
+    target_name=$(basename $target .rs); \
+    echo '=========================================='; \
+    echo 'Fuzzing: '$target_name; \
+    echo '=========================================='; \
+    cargo fuzz run $target_name -- -max_total_time=60 || echo 'Issues found in '$target_name; \
+    done && \
+    echo '' && \
+    echo '=========================================='; \
+    echo 'Fuzzing complete!'; \
+    echo '=========================================='; \
+    if [ -d artifacts ] && [ \"$(find artifacts -type f 2>/dev/null)\" ]; then \
+        echo 'Artifacts found:'; \
+        find artifacts -type f -exec echo '  {}' \\;; \
+    else \
+        echo 'No artifacts generated (no crashes/issues found)'; \
+    fi"]
