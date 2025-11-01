@@ -32,6 +32,12 @@ For security issues, please see [SECURITY.md](SECURITY.md).
 - 🚀 **Performance**: Zero-copy operations, hardware acceleration support
 - 📦 **No-std Support**: Core functionality available in embedded contexts
 
+## 🌐 Live Demo
+
+**[Try CrabGraph in WebAssembly!](https://ariajsarkar.github.io/keyring-wasm/)**
+
+Experience CrabGraph's cryptographic capabilities directly in your browser. This interactive demo showcases real-world usage of the library compiled to WebAssembly, demonstrating encryption, key derivation, and signing operations with zero installation required.
+
 ## 🚀 Quick Start
 
 Add to your `Cargo.toml`:
