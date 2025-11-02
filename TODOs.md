@@ -259,7 +259,7 @@ This document tracks planned features, improvements, and ongoing work for CrabGr
 
 ## Known Issues
 
-- None reported yet (v0.1.0)
+- None reported yet (v0.3.0)
 
 ## Contribution Estimates
 
