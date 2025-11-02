@@ -5,7 +5,8 @@ use crabgraph::kw::{Kw128, Kw256};
 
 fuzz_target!(|data: &[u8]| {
     // Need at least 48 bytes (32 KEK + 16 key minimum)
-    if data.len() < 48 || data.len() > 1024 {
+    // Limit to 512 bytes to prevent DoS (key wrap is expensive)
+    if data.len() < 48 || data.len() > 512 {
         return;
     }
 
@@ -15,7 +16,7 @@ fuzz_target!(|data: &[u8]| {
 
     // Ensure key is multiple of 8 bytes (AES-KW requirement)
     let key_len = (key_data.len() / 8) * 8;
-    if key_len < 16 {
+    if key_len < 16 || key_len > 256 {
         return;
     }
     let key = &key_data[..key_len];

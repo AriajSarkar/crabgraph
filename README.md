@@ -32,13 +32,19 @@ For security issues, please see [SECURITY.md](SECURITY.md).
 - 🚀 **Performance**: Zero-copy operations, hardware acceleration support
 - 📦 **No-std Support**: Core functionality available in embedded contexts
 
+## 🌐 Live Demo
+
+**[Try CrabGraph in WebAssembly!](https://ariajsarkar.github.io/keyring-wasm/)**
+
+Experience CrabGraph's cryptographic capabilities directly in your browser. This interactive demo showcases real-world usage of the library compiled to WebAssembly, demonstrating encryption, key derivation, and signing operations with zero installation required.
+
 ## 🚀 Quick Start
 
 Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-crabgraph = "0.1"
+crabgraph = "0.3.1"
 ```
 
 ### Authenticated Encryption (AES-GCM)
@@ -196,8 +202,26 @@ fn main() -> CrabResult<()> {
 ## 📚 Documentation
 
 - [API Documentation](https://docs.rs/crabgraph)
+- [GitHub Pages Docs](https://ariajsarkar.github.io/crabgraph/crabgraph/)
+- [📊 Performance Benchmarks](https://ariajsarkar.github.io/crabgraph-bench/) 
 - [Migration from CryptoJS](docs/MIGRATE_CRYPTOJS.md)
 - [Examples](examples/)
+
+## ⚡ Performance
+
+CrabGraph delivers excellent performance with minimal overhead over raw primitives:
+
+| Operation | Speed | Throughput |
+|-----------|-------|------------|
+| AES-256-GCM Encrypt (1KB) | ~0.95 μs | **~1,079 MB/s** |
+| ChaCha20-Poly1305 Encrypt (1KB) | ~2.7 μs | **~378 MB/s** |
+| Ed25519 Sign | ~16 μs | **~62,500 ops/sec** |
+| Ed25519 Verify | ~47 μs | **~21,277 ops/sec** |
+| Argon2id KDF (32B) | ~11 ms | Intentionally slow (security) |
+
+📊 **Full benchmark results**: [ariajsarkar.github.io/crabgraph-bench](https://ariajsarkar.github.io/crabgraph-bench/)
+
+*Benchmarks run on modern hardware with AES-NI. Your results may vary.*
 
 ## 🏗️ Architecture
 

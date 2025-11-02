@@ -1,0 +1,35 @@
+services:
+  fuzz:
+    build:
+      context: .
+      dockerfile: Dockerfile.fuzz
+      cache_from:
+        - crabgraph-fuzz:latest
+    image: crabgraph-fuzz:latest
+    container_name: crabgraph-fuzz
+    volumes:
+      # Mount the project directory
+      - .:/workspace
+      # Preserve Cargo cache for faster builds (named volumes)
+      - cargo-cache:/usr/local/cargo/registry
+      - cargo-git-cache:/usr/local/cargo/git
+      - target-cache:/workspace/target
+      # Preserve fuzzing corpus between runs
+      - fuzz-corpus:/workspace/fuzz/corpus
+    environment:
+      - RUST_BACKTRACE=1
+      - RUSTFLAGS=-Zsanitizer=address
+      - CARGO_INCREMENTAL=0  # Disable incremental for fuzzing
+    working_dir: /workspace
+    # Override default command to run specific target
+    # Usage: docker-compose -f docker-compose.fuzz.yml run fuzz cargo fuzz run <target_name> -- -max_total_time=60
+
+volumes:
+  cargo-cache:
+    name: crabgraph-cargo-cache
+  cargo-git-cache:
+    name: crabgraph-cargo-git-cache
+  target-cache:
+    name: crabgraph-target-cache
+  fuzz-corpus:
+    name: crabgraph-fuzz-corpus
