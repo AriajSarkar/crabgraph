@@ -25,12 +25,12 @@ jobs:
       
       - name: Build fuzz Docker image
         run: |
-          docker-compose -f docker-compose.fuzz.yml build \
+          docker compose -f docker-compose.fuzz.yml build \
             --build-arg BUILDKIT_INLINE_CACHE=1
       
       - name: Run fuzzing (60 seconds per target)
         run: |
-          docker-compose -f docker-compose.fuzz.yml up || echo "Fuzzing completed with findings"
+          docker compose -f docker-compose.fuzz.yml up || echo "Fuzzing completed with findings"
       
       - name: Check for artifacts
         id: check_artifacts
