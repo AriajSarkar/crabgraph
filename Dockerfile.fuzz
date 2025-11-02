@@ -31,7 +31,8 @@ RUN rustup default nightly
 WORKDIR /workspace
 
 # Copy Cargo files first for better layer caching
-COPY Cargo.toml Cargo.lock ./
+COPY Cargo.toml ./
+COPY Cargo.lock* ./
 COPY fuzz/Cargo.toml ./fuzz/
 
 # Create dummy src to build dependencies (caching layer)

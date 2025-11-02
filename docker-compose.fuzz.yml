@@ -3,8 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.fuzz
-      cache_from:
-        - crabgraph-fuzz:latest
     image: crabgraph-fuzz:latest
     container_name: crabgraph-fuzz
     volumes:

@@ -15,18 +15,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-fuzz-${{ hashFiles('Dockerfile.fuzz', 'Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-fuzz-
-      
       - name: Build fuzz Docker image
         run: |
-          docker compose -f docker-compose.fuzz.yml build \
-            --build-arg BUILDKIT_INLINE_CACHE=1
+          docker compose -f docker-compose.fuzz.yml build
       
       - name: Run fuzzing (60 seconds per target)
         run: |
