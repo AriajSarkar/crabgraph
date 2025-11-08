@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2025-11-08
+
+### Added
+- **RSA Public Key DER Methods** - Direct DER encoding/decoding for `RsaPublicKey`
+  - `to_public_key_der()` - Export public key as DER-encoded PKCS#8 bytes
+  - `from_public_key_der()` - Import public key from DER-encoded PKCS#8 bytes
+  - Eliminates inefficient DER → base64 → DER roundtrips in applications
+  - Matches Ed25519 API consistency (which already had these methods)
+  - Useful for efficient serialization in file sharing and network protocols
+  - Zero overhead - direct access to underlying format
+
+### Changed
+- Refactored `to_base64()` and `from_base64()` to use new DER methods internally
+- Improved code reuse and maintainability in RSA module
+
+## [0.3.1] - 2025-11-02
+
 ### Added
 - **Property-Based Testing** - Comprehensive property tests using proptest
   - 37 property tests covering all major cryptographic operations
@@ -188,5 +205,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ⚠️ **This library has NOT been audited.** See SECURITY.md before using in production.
 - Minimum Rust version: 1.70
 
-[Unreleased]: https://github.com/AriajSarkar/crabgraph/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/AriajSarkar/crabgraph/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/AriajSarkar/crabgraph/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/AriajSarkar/crabgraph/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/AriajSarkar/crabgraph/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/AriajSarkar/crabgraph/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/AriajSarkar/crabgraph/releases/tag/v0.1.0

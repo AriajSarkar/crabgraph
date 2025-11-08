@@ -156,21 +156,45 @@ impl RsaPublicKey {
         self.0.size()
     }
 
-    /// Encodes public key to base64 (DER format).
-    pub fn to_base64(&self) -> CrabResult<String> {
+    /// Exports the public key as DER-encoded PKCS#8.
+    ///
+    /// This is useful for efficient serialization without base64 encoding overhead.
+    ///
+    /// # Example
+    /// ```ignore
+    /// let der_bytes = public_key.to_public_key_der()?;
+    /// // Store or transmit der_bytes directly
+    /// ```
+    pub fn to_public_key_der(&self) -> CrabResult<Vec<u8>> {
         let der = self
             .0
             .to_public_key_der()
             .map_err(|e| CrabError::key_error(format!("Failed to encode public key: {}", e)))?;
-        Ok(crate::encoding::base64_encode(der.as_bytes()))
+        Ok(der.as_bytes().to_vec())
+    }
+
+    /// Creates a public key from DER-encoded PKCS#8 format.
+    ///
+    /// # Example
+    /// ```ignore
+    /// let public_key = RsaPublicKey::from_public_key_der(&der_bytes)?;
+    /// ```
+    pub fn from_public_key_der(der: &[u8]) -> CrabResult<Self> {
+        let key = RsaPubKey::from_public_key_der(der)
+            .map_err(|e| CrabError::key_error(format!("Invalid RSA public key DER: {}", e)))?;
+        Ok(Self(key))
+    }
+
+    /// Encodes public key to base64 (DER format).
+    pub fn to_base64(&self) -> CrabResult<String> {
+        let der = self.to_public_key_der()?;
+        Ok(crate::encoding::base64_encode(&der))
     }
 
     /// Decodes public key from base64 (DER format).
     pub fn from_base64(data: &str) -> CrabResult<Self> {
         let der = crate::encoding::base64_decode(data)?;
-        let key = RsaPubKey::from_public_key_der(&der)
-            .map_err(|e| CrabError::key_error(format!("Invalid RSA public key DER: {}", e)))?;
-        Ok(Self(key))
+        Self::from_public_key_der(&der)
     }
 }
 
