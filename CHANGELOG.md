@@ -34,7 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Workaround**: Use CrabGraph v0.3.2 for WASM projects
   - **Permanent Fix**: Will be resolved when upgrading to ed25519-dalek 3.0 / x25519-dalek 3.0 (stable release expected Q1 2026)
   - **Impact**: Only affects WASM builds - all other platforms (Windows, Linux, macOS, iOS, Android) work normally
-  - Tracked in issue: [Add issue number when created]
+  - **Tracking Issue**: #6
+  - **Resolution Plan**: See tracking issue for detailed upgrade timeline and dependency versions
 
 ### Internal
 - Removed explicit `rand_core` version constraint (now provided transitively by dalek crates)
