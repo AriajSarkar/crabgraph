@@ -266,7 +266,7 @@ cargo audit
 - `rsa-support`: RSA encryption/signatures (⚠️ **NOT enabled by default** - opt-in only, has known vulnerability RUSTSEC-2023-0071)
 - `serde-support`: Serialization for keys and ciphertexts
 - `zero-copy`: `bytes` crate integration for high-performance scenarios
-- `wasm`: WebAssembly support
+- `wasm`: WebAssembly support (⚠️ **Temporarily unavailable in v0.3.3** - see CHANGELOG for details)
 
 ### Enabling RSA Support
 

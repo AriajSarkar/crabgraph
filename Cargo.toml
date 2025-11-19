@@ -40,7 +40,7 @@ hkdf = "0.12.4"
 sha2 = { version = "0.10.9", features = ["oid"] }
 sha3 = { version = "0.10.8", optional = true }
 blake2 = { version = "0.10.6", optional = true }
-blake3 = { version = "1.5.5", optional = true }
+blake3 = { version = "1.8.2", optional = true }
 
 # Message Authentication Codes
 hmac = "0.12.1"
@@ -52,8 +52,8 @@ rsa = { version = "0.9.8", optional = true, features = ["sha2"] }
 pkcs8 = { version = "0.10.2", features = ["pem", "alloc"] }
 
 # Random number generation
-getrandom = "0.2.16"
-rand_core = "0.6.4"
+getrandom = "0.3.4"
+rand_core = "0.6.4"  # Used for OsRng in asymmetric crypto modules
 
 # Secure memory handling
 zeroize = { version = "1.8.2", features = ["derive"] }
@@ -69,20 +69,32 @@ hex = "0.4.3"
 thiserror = "1.0.69"
 
 # Serialization (optional)
-serde = { version = "1.0.215", features = ["derive"], optional = true }
+serde = { version = "1.0.228", features = ["derive"], optional = true }
 
 # Zero-copy optimizations (optional)
-bytes = { version = "1.9.0", optional = true }
+bytes = { version = "1.11.0", optional = true }
 
 [dev-dependencies]
 criterion = { version = "0.7.0", features = ["html_reports"] }
 proptest = "1.9.0"
 quickcheck = "1.0.3"
 hex-literal = "1.1.0"
-serde_json = "1.0.141"
+serde_json = "1.0.145"
 bincode = "1.3.3"
 toml = "0.8.23"
 serde_bytes = "0.11.19"
+
+# WASM-specific: Enable WASM support for both getrandom versions
+# - getrandom 0.2.x (transitive via rand_core 0.6 from ed25519-dalek/x25519-dalek) needs `js`
+# - getrandom 0.3.x (our direct dependency) needs `wasm_js`
+# Both versions will be used simultaneously, each with their respective features
+# 
+# ⚠️ KNOWN ISSUE (v0.3.3): WASM builds currently fail due to Cargo's unified feature resolution
+# Cannot enable different features for different versions of the same crate.
+# Will be fixed when upgrading to ed25519-dalek 3.0 / x25519-dalek 3.0 (requires Rust 1.81+)
+# For WASM support, use CrabGraph v0.3.2 or earlier.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.3.4", features = ["wasm_js"] }
 
 [features]
 default = ["std"]
@@ -93,7 +105,8 @@ extended-hashes = ["sha3", "blake2", "blake3"]
 rsa-support = ["rsa"]
 serde-support = ["serde"]
 zero-copy = ["bytes"]
-wasm = ["getrandom/js"]
+# WASM support is automatic via target-specific getrandom dependency
+wasm = []
 
 [[example]]
 name = "rsa_example"
