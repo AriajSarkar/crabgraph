@@ -28,7 +28,7 @@ use crate::errors::{CrabError, CrabResult};
 /// ```
 pub fn secure_bytes(len: usize) -> CrabResult<Vec<u8>> {
     let mut buf = vec![0u8; len];
-    getrandom::getrandom(&mut buf)
+    getrandom::fill(&mut buf)
         .map_err(|e| CrabError::random_error(format!("Failed to generate random bytes: {}", e)))?;
     Ok(buf)
 }
@@ -53,7 +53,7 @@ pub fn secure_bytes(len: usize) -> CrabResult<Vec<u8>> {
 /// assert_ne!(key, [0u8; 32]); // Should be random
 /// ```
 pub fn fill_secure_bytes(buf: &mut [u8]) -> CrabResult<()> {
-    getrandom::getrandom(buf).map_err(|e| {
+    getrandom::fill(buf).map_err(|e| {
         CrabError::random_error(format!("Failed to fill buffer with random bytes: {}", e))
     })?;
     Ok(())

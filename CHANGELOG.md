@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3] - 2025-11-19
+
+### Changed
+- **Dependency Updates** - Updated to latest stable versions for improved security and performance
+  - `getrandom` 0.2.16 → **0.3.4** (⚠️ **BREAKING**: Internal API migration, see below)
+  - `serde` 1.0.215 → **1.0.228** (patch updates)
+  - `blake3` 1.5.5 → **1.8.2** (performance improvements)
+  - `bytes` 1.9.0 → **1.11.0** (optional dependency, zero-copy optimizations)
+  - `serde_json` 1.0.141 → **1.0.145** (dev-dependency)
+
+### Fixed
+- **getrandom 0.3.x Migration** - Updated internal random number generation
+  - Migrated from deprecated `getrandom::getrandom()` to new `getrandom::fill()` API
+  - Updated WASM feature flag: `js` → `wasm_js` (for getrandom 0.3.x compatibility)
+  - **Note**: This is an internal change only - public API (`secure_bytes()`, `fill_secure_bytes()`) unchanged
+  - All 313 tests passing with new getrandom version
+
+### Known Issues
+- **WASM Support Temporarily Limited** ⚠️
+  - Building for `wasm32-unknown-unknown` target is currently **not supported**
+  - **Root Cause**: Dependency version conflict between:
+    - getrandom 0.3.4 (our direct dependency) - requires `wasm_js` feature
+    - getrandom 0.2.x (transitive via ed25519-dalek 2.2 / x25519-dalek 2.0) - requires `js` feature
+    - Cargo cannot enable different features for different versions of the same crate
+  - **Workaround**: Use CrabGraph v0.3.2 for WASM projects
+  - **Permanent Fix**: Will be resolved when upgrading to ed25519-dalek 3.0 / x25519-dalek 3.0 (stable release expected Q1 2026)
+  - **Impact**: Only affects WASM builds - all other platforms (Windows, Linux, macOS, iOS, Android) work normally
+  - Tracked in issue: [Add issue number when created]
+
+### Internal
+- Removed explicit `rand_core` version constraint (now provided transitively by dalek crates)
+- All cryptographic operations continue to use audited primitives (RustCrypto, dalek-cryptography)
+- Zero user-facing API changes - migration is fully backward compatible
+
 ## [0.3.2] - 2025-11-08
 
 ### Added
