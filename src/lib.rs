@@ -101,6 +101,21 @@
 //! - `serde-support`: Serialization support
 //! - `zero-copy`: High-performance `bytes` integration
 //! - `wasm`: WebAssembly support
+//! - `simd`: Hardware acceleration (AES-NI for x86/x86_64)
+//!
+//! # Performance Diagnostics
+//!
+//! To check if your application is using the best available hardware acceleration,
+//! you can use the diagnostics module:
+//!
+//! ```
+//! use crabgraph::diagnostics;
+//!
+//! let warnings = diagnostics::check_performance();
+//! for warning in warnings {
+//!     eprintln!("{}", warning);
+//! }
+//! ```
 
 #![warn(missing_docs)]
 #![warn(rust_2018_idioms)]
@@ -108,6 +123,7 @@
 
 pub mod aead;
 pub mod asym;
+pub mod diagnostics;
 pub mod encoding;
 pub mod errors;
 pub mod hash;

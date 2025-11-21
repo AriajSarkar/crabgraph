@@ -1,0 +1,5 @@
+[build]
+# Optimize for the native CPU architecture of the build machine.
+# This automatically enables AVX2, AES-NI, and other features if the CPU supports them.
+# Note: Binaries built with this flag may not run on older CPUs.
+rustflags = ["-C", "target-feature=+avx2"]

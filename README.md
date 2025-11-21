@@ -215,6 +215,7 @@ CrabGraph delivers excellent performance with minimal overhead over raw primitiv
 |-----------|-------|------------|
 | AES-256-GCM Encrypt (1KB) | ~0.95 μs | **~1,079 MB/s** |
 | ChaCha20-Poly1305 Encrypt (1KB) | ~2.7 μs | **~378 MB/s** |
+| ChaCha20-Poly1305 (AVX2) | ~0.9 μs | **~1,100 MB/s** |
 | Ed25519 Sign | ~16 μs | **~62,500 ops/sec** |
 | Ed25519 Verify | ~47 μs | **~21,277 ops/sec** |
 | Argon2id KDF (32B) | ~11 ms | Intentionally slow (security) |
@@ -222,6 +223,40 @@ CrabGraph delivers excellent performance with minimal overhead over raw primitiv
 📊 **Full benchmark results**: [ariajsarkar.github.io/crabgraph-bench](https://ariajsarkar.github.io/crabgraph-bench/)
 
 *Benchmarks run on modern hardware with AES-NI. Your results may vary.*
+
+### 🚀 Enabling High Performance
+
+To achieve maximum speed, especially for ChaCha20-Poly1305 (~3x faster), you must enable hardware acceleration:
+
+1.  **Enable the `simd` feature** in your `Cargo.toml`:
+    ```toml
+    [dependencies]
+    crabgraph = { version = "0.3.3", features = ["simd"] }
+    ```
+
+2.  **Enable AVX2 for ChaCha20**:
+    The `chacha20` crate requires explicit compiler flags to use AVX2 on stable Rust.
+    
+    **Option A: For your application (Recommended)**
+    Create a `.cargo/config.toml` in your project root:
+    ```toml
+    [build]
+    # Optimize for your machine's CPU (enables AVX2 if available)
+    rustflags = ["-C", "target-cpu=native"]
+    ```
+    
+    **Option B: Environment Variable**
+    ```bash
+    RUSTFLAGS="-C target-cpu=native" cargo build --release
+    ```
+
+    > ⚠️ **Note**: Without `target-cpu=native` (or `target-feature=+avx2`), ChaCha20 will use a portable implementation which is significantly slower (~300 MB/s vs ~1.1 GB/s).
+
+    You can check if you are missing optimizations at runtime:
+    ```rust
+    use crabgraph::diagnostics;
+    diagnostics::print_performance_warnings();
+    ```
 
 ## 🏗️ Architecture
 

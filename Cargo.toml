@@ -25,7 +25,7 @@ exclude = [
 
 [dependencies]
 # AEAD ciphers - RustCrypto audited implementations
-aes-gcm = { version = "0.10.3", features = ["std", "stream"] }
+aes-gcm = { version = "0.10.3", features = ["aes", "std", "stream"] }
 chacha20poly1305 = { version = "0.10.1", features = ["std", "stream"] }
 
 # Key wrapping
@@ -107,6 +107,10 @@ serde-support = ["serde"]
 zero-copy = ["bytes"]
 # WASM support is automatic via target-specific getrandom dependency
 wasm = []
+
+# SIMD support (AES-NI for x86/x86_64)
+# Note: ChaCha20 SIMD is enabled via RUSTFLAGS (e.g. -C target-feature=+avx2)
+simd = ["aes-gcm/aes"]
 
 [[example]]
 name = "rsa_example"
