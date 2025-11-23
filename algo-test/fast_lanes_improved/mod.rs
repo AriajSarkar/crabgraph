@@ -102,7 +102,12 @@ impl FastLanesImproved {
 
     pub fn encrypt_in_place(&self, buffer: &mut [u8]) -> [u8; 16] {
         match self.choose_backend(buffer.len()) {
+            #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
             Backend::Avx2 => unsafe { self.encrypt_avx2(buffer) },
+
+            #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+            Backend::Avx2 => self.encrypt_scalar(buffer),
+
             Backend::Scalar => self.encrypt_scalar(buffer),
             _ => self.encrypt_scalar(buffer), // Should not happen given choose_backend logic
         }
