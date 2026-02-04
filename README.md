@@ -19,12 +19,13 @@ For security issues, please see [SECURITY.md](SECURITY.md).
 ## ✨ Features
 
 - 🔒 **Authenticated Encryption (AEAD)**: AES-GCM, ChaCha20-Poly1305
-- � **Streaming Encryption**: Process large files chunk-by-chunk with STREAM construction
-- �🔑 **Key Derivation**: PBKDF2, Argon2, HKDF
-- ✍️ **Digital Signatures**: Ed25519, (optional: RSA-PSS)
-- 🤝 **Key Exchange**: X25519 (Elliptic Curve Diffie-Hellman)
+- 📦 **Streaming Encryption**: Process large files chunk-by-chunk with STREAM construction
+- 🔑 **Key Derivation**: PBKDF2, Argon2, HKDF
+- ✍️ **Digital Signatures**: Ed25519, ECDSA (P-256, P-384), (optional: RSA-PSS)
+- 🤝 **Key Exchange**: X25519, P-256, P-384 (Elliptic Curve Diffie-Hellman)
 - 🔐 **Message Authentication**: HMAC (SHA-256, SHA-512)
-- #️⃣ **Hashing**: SHA-256, SHA-512, (optional: SHA-3, BLAKE2)
+- #️⃣ **Hashing**: SHA-256, SHA-384, SHA-512, (optional: SHA-3, BLAKE2)
+- 🌐 **TLS Support**: rustls CryptoProvider for reqwest, hyper-rustls, tokio-rustls
 - 🔒 **Optional RSA Support**: RSA-OAEP encryption & RSA-PSS signatures (⚠️ opt-in only, not recommended)
 - 🎲 **Secure Random**: Cryptographically secure RNG wrapper
 - 🧹 **Memory Safety**: Automatic zeroization of sensitive data
@@ -266,7 +267,35 @@ cargo audit
 - `rsa-support`: RSA encryption/signatures (⚠️ **NOT enabled by default** - opt-in only, has known vulnerability RUSTSEC-2023-0071)
 - `serde-support`: Serialization for keys and ciphertexts
 - `zero-copy`: `bytes` crate integration for high-performance scenarios
+- `tls`: TLS CryptoProvider for rustls (includes P-256, P-384, SHA-384)
+- `rustls-provider`: Alias for `tls` feature
 - `wasm`: WebAssembly support (⚠️ **Temporarily unavailable in v0.3.3** - see CHANGELOG for details)
+
+### TLS Support (New in v0.4.0)
+
+Use crabgraph as the TLS crypto backend for reqwest, hyper-rustls, and other rustls-based libraries:
+
+```toml
+[dependencies]
+crabgraph = { version = "0.4", features = ["tls"] }
+```
+
+```rust
+use crabgraph::tls;
+
+fn main() {
+    // Install crabgraph as the default TLS provider (call once at startup)
+    tls::install_default();
+    
+    // Now all rustls-based libraries will use crabgraph
+    // let client = reqwest::Client::new();
+}
+```
+
+**Supported Cipher Suites:**
+- TLS 1.3: AES-256-GCM, AES-128-GCM, ChaCha20-Poly1305
+- TLS 1.2: ECDHE-ECDSA/RSA with AES-GCM and ChaCha20-Poly1305
+- Key Exchange: X25519, P-256, P-384
 
 ### Enabling RSA Support
 
