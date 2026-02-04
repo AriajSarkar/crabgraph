@@ -120,10 +120,7 @@ mod tests {
     #[test]
     fn test_tls13_chacha20_poly1305_sha256() {
         let suite = TLS13_CHACHA20_POLY1305_SHA256;
-        assert_eq!(
-            suite.common.suite,
-            CipherSuite::TLS13_CHACHA20_POLY1305_SHA256
-        );
+        assert_eq!(suite.common.suite, CipherSuite::TLS13_CHACHA20_POLY1305_SHA256);
     }
 
     #[test]
@@ -135,18 +132,9 @@ mod tests {
     fn test_cipher_suite_order() {
         // Verify our preference order: AES-256 > ChaCha20 > AES-128
         let suites = ALL_TLS13_CIPHER_SUITES;
-        assert_eq!(
-            suites[0].common.suite,
-            CipherSuite::TLS13_AES_256_GCM_SHA384
-        );
-        assert_eq!(
-            suites[1].common.suite,
-            CipherSuite::TLS13_CHACHA20_POLY1305_SHA256
-        );
-        assert_eq!(
-            suites[2].common.suite,
-            CipherSuite::TLS13_AES_128_GCM_SHA256
-        );
+        assert_eq!(suites[0].common.suite, CipherSuite::TLS13_AES_256_GCM_SHA384);
+        assert_eq!(suites[1].common.suite, CipherSuite::TLS13_CHACHA20_POLY1305_SHA256);
+        assert_eq!(suites[2].common.suite, CipherSuite::TLS13_AES_128_GCM_SHA256);
     }
 
     #[test]

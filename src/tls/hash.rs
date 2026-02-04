@@ -169,7 +169,7 @@ mod tests {
         ctx.update(b"hello");
         ctx.update(b" world");
         let result = ctx.finish();
-        
+
         let direct = SHA256.hash(b"hello world");
         assert_eq!(result.as_ref(), direct.as_ref());
     }
@@ -178,13 +178,13 @@ mod tests {
     fn test_context_fork() {
         let mut ctx = SHA256.start();
         ctx.update(b"hello");
-        
+
         let forked = ctx.fork();
         ctx.update(b" world");
-        
+
         let result1 = ctx.finish();
         let result2 = forked.finish();
-        
+
         // Forked context doesn't see " world"
         assert_ne!(result1.as_ref(), result2.as_ref());
     }

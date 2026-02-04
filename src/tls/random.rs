@@ -21,7 +21,7 @@ mod tests {
         let rng = CrabgraphRng;
         let mut buf = [0u8; 32];
         rng.fill(&mut buf).unwrap();
-        
+
         // Very unlikely to be all zeros
         assert!(buf.iter().any(|&b| b != 0));
     }
@@ -31,10 +31,10 @@ mod tests {
         let rng = CrabgraphRng;
         let mut buf1 = [0u8; 32];
         let mut buf2 = [0u8; 32];
-        
+
         rng.fill(&mut buf1).unwrap();
         rng.fill(&mut buf2).unwrap();
-        
+
         assert_ne!(buf1, buf2);
     }
 }

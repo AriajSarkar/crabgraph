@@ -3,9 +3,7 @@
 use hmac::{Mac, SimpleHmac};
 use rustls::crypto::hmac::{Hmac, Key, Tag};
 use rustls::crypto::tls12::Prf;
-use rustls::crypto::tls13::{
-    Hkdf, HkdfExpander, OkmBlock, OutputLengthError,
-};
+use rustls::crypto::tls13::{Hkdf, HkdfExpander, OkmBlock, OutputLengthError};
 use sha2::{Sha256, Sha384};
 
 /// HMAC-SHA256 for TLS.
@@ -110,15 +108,16 @@ impl Hkdf for HkdfSha256 {
     fn expander_for_okm(&self, okm: &OkmBlock) -> Box<dyn HkdfExpander> {
         // Use the OKM directly as the PRK
         let mut prk = [0u8; 32];
-        prk[..okm.as_ref().len().min(32)].copy_from_slice(&okm.as_ref()[..okm.as_ref().len().min(32)]);
+        prk[..okm.as_ref().len().min(32)]
+            .copy_from_slice(&okm.as_ref()[..okm.as_ref().len().min(32)]);
         Box::new(HkdfSha256Expander {
             prk: hkdf::hmac::digest::Output::<Sha256>::from(prk),
         })
     }
 
     fn hmac_sign(&self, key: &OkmBlock, message: &[u8]) -> Tag {
-        let mut mac = SimpleHmac::<Sha256>::new_from_slice(key.as_ref())
-            .expect("HMAC key should be valid");
+        let mut mac =
+            SimpleHmac::<Sha256>::new_from_slice(key.as_ref()).expect("HMAC key should be valid");
         mac.update(message);
         Tag::new(&mac.finalize().into_bytes()[..])
     }
@@ -136,8 +135,7 @@ impl HkdfExpander for HkdfSha256Expander {
     fn expand_slice(&self, info: &[&[u8]], output: &mut [u8]) -> Result<(), OutputLengthError> {
         let hkdf = hkdf::Hkdf::<Sha256>::from_prk(&self.prk).map_err(|_| OutputLengthError)?;
         let info_concat: Vec<u8> = info.iter().flat_map(|s| s.iter().copied()).collect();
-        hkdf.expand(&info_concat, output)
-            .map_err(|_| OutputLengthError)
+        hkdf.expand(&info_concat, output).map_err(|_| OutputLengthError)
     }
 
     fn expand_block(&self, info: &[&[u8]]) -> OkmBlock {
@@ -170,15 +168,16 @@ impl Hkdf for HkdfSha384 {
 
     fn expander_for_okm(&self, okm: &OkmBlock) -> Box<dyn HkdfExpander> {
         let mut prk = [0u8; 48];
-        prk[..okm.as_ref().len().min(48)].copy_from_slice(&okm.as_ref()[..okm.as_ref().len().min(48)]);
+        prk[..okm.as_ref().len().min(48)]
+            .copy_from_slice(&okm.as_ref()[..okm.as_ref().len().min(48)]);
         Box::new(HkdfSha384Expander {
             prk: hkdf::hmac::digest::Output::<Sha384>::from(prk),
         })
     }
 
     fn hmac_sign(&self, key: &OkmBlock, message: &[u8]) -> Tag {
-        let mut mac = SimpleHmac::<Sha384>::new_from_slice(key.as_ref())
-            .expect("HMAC key should be valid");
+        let mut mac =
+            SimpleHmac::<Sha384>::new_from_slice(key.as_ref()).expect("HMAC key should be valid");
         mac.update(message);
         Tag::new(&mac.finalize().into_bytes()[..])
     }
@@ -196,8 +195,7 @@ impl HkdfExpander for HkdfSha384Expander {
     fn expand_slice(&self, info: &[&[u8]], output: &mut [u8]) -> Result<(), OutputLengthError> {
         let hkdf = hkdf::Hkdf::<Sha384>::from_prk(&self.prk).map_err(|_| OutputLengthError)?;
         let info_concat: Vec<u8> = info.iter().flat_map(|s| s.iter().copied()).collect();
-        hkdf.expand(&info_concat, output)
-            .map_err(|_| OutputLengthError)
+        hkdf.expand(&info_concat, output).map_err(|_| OutputLengthError)
     }
 
     fn expand_block(&self, info: &[&[u8]]) -> OkmBlock {
@@ -362,21 +360,21 @@ mod tests {
     fn test_hmac_consistency() {
         let key1 = HMAC_SHA256.with_key(b"key");
         let key2 = HMAC_SHA256.with_key(b"key");
-        
+
         let tag1 = key1.sign_concat(b"message", &[], b"");
         let tag2 = key2.sign_concat(b"message", &[], b"");
-        
+
         assert_eq!(tag1.as_ref(), tag2.as_ref());
     }
 
     #[test]
     fn test_hmac_middle_parts() {
         let key = HMAC_SHA256.with_key(b"key");
-        
+
         // These should produce the same result
         let tag1 = key.sign_concat(b"", &[b"hello", b" ", b"world"], b"");
         let tag2 = key.sign_concat(b"hello world", &[], b"");
-        
+
         assert_eq!(tag1.as_ref(), tag2.as_ref());
     }
 }

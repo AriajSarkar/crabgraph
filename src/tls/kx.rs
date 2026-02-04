@@ -65,9 +65,9 @@ struct X25519KeyExchange {
 
 impl ActiveKeyExchange for X25519KeyExchange {
     fn complete(self: Box<Self>, peer_pub_key: &[u8]) -> Result<SharedSecret, rustls::Error> {
-        let peer_key: [u8; 32] = peer_pub_key.try_into().map_err(|_| {
-            rustls::Error::General("X25519 peer key must be 32 bytes".into())
-        })?;
+        let peer_key: [u8; 32] = peer_pub_key
+            .try_into()
+            .map_err(|_| rustls::Error::General("X25519 peer key must be 32 bytes".into()))?;
 
         let peer_public = x25519_dalek::PublicKey::from(peer_key);
         let shared = self.secret.diffie_hellman(&peer_public);
@@ -142,15 +142,12 @@ impl ActiveKeyExchange for P256KeyExchange {
     fn complete(self: Box<Self>, peer_pub_key: &[u8]) -> Result<SharedSecret, rustls::Error> {
         use p256::elliptic_curve::sec1::FromEncodedPoint;
 
-        let encoded =
-            p256::EncodedPoint::from_bytes(peer_pub_key).map_err(|_| {
-                rustls::Error::General("invalid P-256 public key encoding".into())
-            })?;
+        let encoded = p256::EncodedPoint::from_bytes(peer_pub_key)
+            .map_err(|_| rustls::Error::General("invalid P-256 public key encoding".into()))?;
 
         let peer_public = p256::PublicKey::from_encoded_point(&encoded);
-        let peer_public = Option::from(peer_public).ok_or_else(|| {
-            rustls::Error::General("invalid P-256 public key".into())
-        })?;
+        let peer_public = Option::from(peer_public)
+            .ok_or_else(|| rustls::Error::General("invalid P-256 public key".into()))?;
 
         let shared = self.secret.diffie_hellman(&peer_public);
         let raw_bytes = shared.raw_secret_bytes();
@@ -225,15 +222,12 @@ impl ActiveKeyExchange for P384KeyExchange {
     fn complete(self: Box<Self>, peer_pub_key: &[u8]) -> Result<SharedSecret, rustls::Error> {
         use p384::elliptic_curve::sec1::FromEncodedPoint;
 
-        let encoded =
-            p384::EncodedPoint::from_bytes(peer_pub_key).map_err(|_| {
-                rustls::Error::General("invalid P-384 public key encoding".into())
-            })?;
+        let encoded = p384::EncodedPoint::from_bytes(peer_pub_key)
+            .map_err(|_| rustls::Error::General("invalid P-384 public key encoding".into()))?;
 
         let peer_public = p384::PublicKey::from_encoded_point(&encoded);
-        let peer_public = Option::from(peer_public).ok_or_else(|| {
-            rustls::Error::General("invalid P-384 public key".into())
-        })?;
+        let peer_public = Option::from(peer_public)
+            .ok_or_else(|| rustls::Error::General("invalid P-384 public key".into()))?;
 
         let shared = self.secret.diffie_hellman(&peer_public);
         let raw_bytes = shared.raw_secret_bytes();
@@ -284,10 +278,7 @@ mod tests {
 
         let alice_secret = alice.complete(&bob_completed.pub_key).expect("Alice should complete");
 
-        assert_eq!(
-            alice_secret.secret_bytes(),
-            bob_completed.secret.secret_bytes()
-        );
+        assert_eq!(alice_secret.secret_bytes(), bob_completed.secret.secret_bytes());
         assert_eq!(bob_completed.group, NamedGroup::X25519);
     }
 

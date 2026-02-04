@@ -165,38 +165,26 @@ mod tests {
     #[test]
     fn test_tls12_ecdsa_aes_128() {
         let suite = TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256;
-        assert_eq!(
-            suite.common.suite,
-            CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
-        );
+        assert_eq!(suite.common.suite, CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256);
         assert_eq!(suite.kx, KeyExchangeAlgorithm::ECDHE);
     }
 
     #[test]
     fn test_tls12_ecdsa_aes_256() {
         let suite = TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384;
-        assert_eq!(
-            suite.common.suite,
-            CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-        );
+        assert_eq!(suite.common.suite, CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384);
     }
 
     #[test]
     fn test_tls12_rsa_aes_128() {
         let suite = TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256;
-        assert_eq!(
-            suite.common.suite,
-            CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        );
+        assert_eq!(suite.common.suite, CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256);
     }
 
     #[test]
     fn test_tls12_rsa_aes_256() {
         let suite = TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384;
-        assert_eq!(
-            suite.common.suite,
-            CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        );
+        assert_eq!(suite.common.suite, CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384);
     }
 
     #[test]
@@ -204,14 +192,8 @@ mod tests {
         let ecdsa = TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256;
         let rsa = TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256;
 
-        assert_eq!(
-            ecdsa.common.suite,
-            CipherSuite::TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
-        );
-        assert_eq!(
-            rsa.common.suite,
-            CipherSuite::TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
-        );
+        assert_eq!(ecdsa.common.suite, CipherSuite::TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256);
+        assert_eq!(rsa.common.suite, CipherSuite::TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256);
     }
 
     #[test]
@@ -231,31 +213,19 @@ mod tests {
         let suites = ALL_TLS12_CIPHER_SUITES;
 
         // First 3 should be ECDSA
-        assert_eq!(
-            suites[0].common.suite,
-            CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-        );
+        assert_eq!(suites[0].common.suite, CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384);
         assert_eq!(
             suites[1].common.suite,
             CipherSuite::TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
         );
-        assert_eq!(
-            suites[2].common.suite,
-            CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
-        );
+        assert_eq!(suites[2].common.suite, CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256);
 
         // Last 3 should be RSA
-        assert_eq!(
-            suites[3].common.suite,
-            CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        );
+        assert_eq!(suites[3].common.suite, CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384);
         assert_eq!(
             suites[4].common.suite,
             CipherSuite::TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
         );
-        assert_eq!(
-            suites[5].common.suite,
-            CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        );
+        assert_eq!(suites[5].common.suite, CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256);
     }
 }

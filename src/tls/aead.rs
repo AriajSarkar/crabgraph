@@ -391,11 +391,7 @@ impl<C: AeadInPlace + Send + Sync> MessageEncrypter for Tls13Encrypter<C> {
             )
             .map_err(|_| rustls::Error::EncryptError)?;
 
-        Ok(OutboundOpaqueMessage::new(
-            ContentType::ApplicationData,
-            msg.version,
-            payload,
-        ))
+        Ok(OutboundOpaqueMessage::new(ContentType::ApplicationData, msg.version, payload))
     }
 
     fn encrypted_payload_len(&self, payload_len: usize) -> usize {
@@ -468,11 +464,7 @@ impl MessageEncrypter for Tls13ChaChaEncrypter {
             )
             .map_err(|_| rustls::Error::EncryptError)?;
 
-        Ok(OutboundOpaqueMessage::new(
-            ContentType::ApplicationData,
-            msg.version,
-            payload,
-        ))
+        Ok(OutboundOpaqueMessage::new(ContentType::ApplicationData, msg.version, payload))
     }
 
     fn encrypted_payload_len(&self, payload_len: usize) -> usize {
@@ -600,7 +592,7 @@ impl<C: AeadInPlace + Send + Sync> MessageDecrypter for Tls12GcmDecrypter<C> {
         // Copy the payload (after explicit nonce) to a temp buffer.
         let ciphertext_with_tag = &msg.payload[TLS12_GCM_EXPLICIT_NONCE_LEN..];
         let mut temp = ciphertext_with_tag.to_vec();
-        
+
         self.cipher
             .decrypt_in_place(aes_gcm::Nonce::from_slice(&nonce), &aad, &mut temp)
             .map_err(|_| rustls::Error::DecryptError)?;
@@ -750,9 +742,6 @@ mod tests {
         let implicit = [0x01, 0x02, 0x03, 0x04];
         let explicit = [0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c];
         let full = build_tls12_iv(&implicit, &explicit);
-        assert_eq!(
-            full,
-            [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c]
-        );
+        assert_eq!(full, [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c]);
     }
 }

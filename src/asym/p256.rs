@@ -252,7 +252,8 @@ impl P256KeyPair {
     pub fn diffie_hellman(&self, their_public: &P256PublicKey) -> CrabResult<P256SharedSecret> {
         use p256::ecdh::diffie_hellman;
 
-        let shared = diffie_hellman(self.secret.to_nonzero_scalar(), their_public.inner().as_affine());
+        let shared =
+            diffie_hellman(self.secret.to_nonzero_scalar(), their_public.inner().as_affine());
         P256SharedSecret::from_bytes(shared.raw_secret_bytes().to_vec())
     }
 }
@@ -482,11 +483,11 @@ mod tests {
     fn test_p256_keypair_generation() {
         let keypair = P256KeyPair::generate().unwrap();
         let public_key = keypair.public_key();
-        
+
         // Public key should be 65 bytes uncompressed (04 prefix + 32 x + 32 y)
         assert_eq!(public_key.to_sec1_bytes().len(), 65);
         assert_eq!(public_key.to_sec1_bytes()[0], 0x04);
-        
+
         // Compressed should be 33 bytes
         assert_eq!(public_key.to_sec1_compressed().len(), 33);
     }
@@ -585,7 +586,7 @@ mod tests {
         let bytes = original.to_bytes();
 
         let restored = P256SigningKey::from_bytes(&bytes).unwrap();
-        
+
         // Verify both keys produce the same verifying key
         assert_eq!(
             original.verifying_key().to_sec1_bytes(),

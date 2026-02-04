@@ -35,9 +35,7 @@ impl KeyProvider for CrabKeyProvider {
                 if let Ok(key) = RsaSigningKey::from_pkcs8_der(der.secret_pkcs8_der()) {
                     return Ok(Arc::new(key));
                 }
-                Err(rustls::Error::General(
-                    "unsupported PKCS#8 key type".into(),
-                ))
+                Err(rustls::Error::General("unsupported PKCS#8 key type".into()))
             }
             PrivateKeyDer::Sec1(der) => {
                 // SEC1 is specifically for EC keys
@@ -56,9 +54,7 @@ impl KeyProvider for CrabKeyProvider {
                 }
                 #[cfg(not(feature = "rsa-support"))]
                 let _ = der;
-                Err(rustls::Error::General(
-                    "PKCS#1 RSA keys require rsa-support feature".into(),
-                ))
+                Err(rustls::Error::General("PKCS#1 RSA keys require rsa-support feature".into()))
             }
             _ => Err(rustls::Error::General("unsupported key format".into())),
         }
@@ -101,9 +97,7 @@ impl EcdsaSigningKey {
                 scheme: SignatureScheme::ECDSA_NISTP384_SHA384,
             });
         }
-        Err(rustls::Error::General(
-            "failed to parse ECDSA key from PKCS#8".into(),
-        ))
+        Err(rustls::Error::General("failed to parse ECDSA key from PKCS#8".into()))
     }
 
     /// Parse an ECDSA key from SEC1 DER format.
@@ -122,9 +116,7 @@ impl EcdsaSigningKey {
                 scheme: SignatureScheme::ECDSA_NISTP384_SHA384,
             });
         }
-        Err(rustls::Error::General(
-            "failed to parse ECDSA key from SEC1".into(),
-        ))
+        Err(rustls::Error::General("failed to parse ECDSA key from SEC1".into()))
     }
 }
 
@@ -434,9 +426,7 @@ mod tests {
         let signing_key = SigningKey::random(&mut rng);
 
         // Export to PKCS#8
-        let pkcs8_der = signing_key
-            .to_pkcs8_der()
-            .expect("Failed to encode PKCS#8");
+        let pkcs8_der = signing_key.to_pkcs8_der().expect("Failed to encode PKCS#8");
 
         // Load via our key provider
         let loaded = EcdsaSigningKey::from_pkcs8_der(pkcs8_der.as_bytes())
@@ -460,9 +450,7 @@ mod tests {
         let signing_key = ed25519_dalek::SigningKey::generate(&mut rng);
 
         // Export to PKCS#8
-        let pkcs8_der = signing_key
-            .to_pkcs8_der()
-            .expect("Failed to encode PKCS#8");
+        let pkcs8_der = signing_key.to_pkcs8_der().expect("Failed to encode PKCS#8");
 
         // Load via our key provider
         let loaded = Ed25519SigningKey::from_pkcs8_der(pkcs8_der.as_bytes())

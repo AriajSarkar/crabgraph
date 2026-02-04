@@ -36,15 +36,9 @@ pub static SUPPORTED_SIG_ALGS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgori
     ],
     mapping: &[
         // ECDSA P-256 with SHA-256
-        (
-            SignatureScheme::ECDSA_NISTP256_SHA256,
-            &[ECDSA_P256_SHA256, ECDSA_P384_SHA256],
-        ),
+        (SignatureScheme::ECDSA_NISTP256_SHA256, &[ECDSA_P256_SHA256, ECDSA_P384_SHA256]),
         // ECDSA P-384 with SHA-384
-        (
-            SignatureScheme::ECDSA_NISTP384_SHA384,
-            &[ECDSA_P384_SHA384, ECDSA_P256_SHA384],
-        ),
+        (SignatureScheme::ECDSA_NISTP384_SHA384, &[ECDSA_P384_SHA384, ECDSA_P256_SHA384]),
         // Ed25519
         (SignatureScheme::ED25519, &[ED25519]),
         // RSA-PSS
@@ -356,14 +350,14 @@ impl SignatureVerificationAlgorithm for RsaPkcs1Sha512 {
 // ECDSA public key algorithm identifiers
 // id-ecPublicKey (1.2.840.10045.2.1) + secp256r1 (1.2.840.10045.3.1.7)
 const ECDSA_P256_ALG_ID: &[u8] = &[
-    0x30, 0x13, 0x06, 0x07, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01, 0x06, 0x08, 0x2A,
-    0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07,
+    0x30, 0x13, 0x06, 0x07, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01, 0x06, 0x08, 0x2A, 0x86, 0x48,
+    0xCE, 0x3D, 0x03, 0x01, 0x07,
 ];
 
 // id-ecPublicKey (1.2.840.10045.2.1) + secp384r1 (1.3.132.0.34)
 const ECDSA_P384_ALG_ID: &[u8] = &[
-    0x30, 0x10, 0x06, 0x07, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01, 0x06, 0x05, 0x2B,
-    0x81, 0x04, 0x00, 0x22,
+    0x30, 0x10, 0x06, 0x07, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01, 0x06, 0x05, 0x2B, 0x81, 0x04,
+    0x00, 0x22,
 ];
 
 // ecdsa-with-SHA256 (1.2.840.10045.4.3.2)
@@ -381,14 +375,12 @@ const ED25519_ALG_ID: &[u8] = &[0x30, 0x05, 0x06, 0x03, 0x2B, 0x65, 0x70];
 
 // RSA public key algorithm (1.2.840.113549.1.1.1)
 const RSA_ALG_ID: &[u8] = &[
-    0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05,
-    0x00,
+    0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01, 0x05, 0x00,
 ];
 
 // RSA-PSS with SHA-256 (1.2.840.113549.1.1.10)
 const RSA_PSS_SHA256_ALG_ID: &[u8] = &[
-    0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0A, 0x05,
-    0x00,
+    0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0A, 0x05, 0x00,
 ];
 
 // RSA-PSS with SHA-384
@@ -399,20 +391,17 @@ const RSA_PSS_SHA512_ALG_ID: &[u8] = RSA_PSS_SHA256_ALG_ID;
 
 // RSA PKCS#1 v1.5 with SHA-256 (1.2.840.113549.1.1.11)
 const RSA_PKCS1_SHA256_ALG_ID: &[u8] = &[
-    0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0B, 0x05,
-    0x00,
+    0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0B, 0x05, 0x00,
 ];
 
 // RSA PKCS#1 v1.5 with SHA-384 (1.2.840.113549.1.1.12)
 const RSA_PKCS1_SHA384_ALG_ID: &[u8] = &[
-    0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0C, 0x05,
-    0x00,
+    0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0C, 0x05, 0x00,
 ];
 
 // RSA PKCS#1 v1.5 with SHA-512 (1.2.840.113549.1.1.13)
 const RSA_PKCS1_SHA512_ALG_ID: &[u8] = &[
-    0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0D, 0x05,
-    0x00,
+    0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x0D, 0x05, 0x00,
 ];
 
 // ============================================================================
@@ -427,8 +416,7 @@ fn verify_ecdsa_p256_sha256(
 ) -> Result<(), InvalidSignature> {
     use p256::ecdsa::{signature::Verifier, Signature, VerifyingKey};
 
-    let verifying_key =
-        VerifyingKey::from_sec1_bytes(public_key).map_err(|_| InvalidSignature)?;
+    let verifying_key = VerifyingKey::from_sec1_bytes(public_key).map_err(|_| InvalidSignature)?;
 
     let sig = Signature::from_der(signature)
         .or_else(|_| Signature::from_slice(signature))
@@ -446,8 +434,7 @@ fn verify_ecdsa_p256_sha384(
     use p256::ecdsa::{signature::Verifier, Signature, VerifyingKey};
 
     // For P-256 with SHA-384, we need to hash manually and use the prehash verifier
-    let verifying_key =
-        VerifyingKey::from_sec1_bytes(public_key).map_err(|_| InvalidSignature)?;
+    let verifying_key = VerifyingKey::from_sec1_bytes(public_key).map_err(|_| InvalidSignature)?;
 
     let sig = Signature::from_der(signature)
         .or_else(|_| Signature::from_slice(signature))
@@ -466,8 +453,7 @@ fn verify_ecdsa_p384_sha256(
 ) -> Result<(), InvalidSignature> {
     use p384::ecdsa::{signature::Verifier, Signature, VerifyingKey};
 
-    let verifying_key =
-        VerifyingKey::from_sec1_bytes(public_key).map_err(|_| InvalidSignature)?;
+    let verifying_key = VerifyingKey::from_sec1_bytes(public_key).map_err(|_| InvalidSignature)?;
 
     let sig = Signature::from_der(signature)
         .or_else(|_| Signature::from_slice(signature))
@@ -484,8 +470,7 @@ fn verify_ecdsa_p384_sha384(
 ) -> Result<(), InvalidSignature> {
     use p384::ecdsa::{signature::Verifier, Signature, VerifyingKey};
 
-    let verifying_key =
-        VerifyingKey::from_sec1_bytes(public_key).map_err(|_| InvalidSignature)?;
+    let verifying_key = VerifyingKey::from_sec1_bytes(public_key).map_err(|_| InvalidSignature)?;
 
     let sig = Signature::from_der(signature)
         .or_else(|_| Signature::from_slice(signature))
@@ -649,11 +634,7 @@ mod tests {
         let signature = signing_key.sign(message);
 
         // Verify using our implementation
-        let result = verify_ed25519(
-            verifying_key.as_bytes(),
-            message,
-            &signature.to_bytes(),
-        );
+        let result = verify_ed25519(verifying_key.as_bytes(), message, &signature.to_bytes());
 
         assert!(result.is_ok());
     }
@@ -670,11 +651,8 @@ mod tests {
         let signature = signing_key.sign(message);
 
         // Verify with wrong message
-        let result = verify_ed25519(
-            verifying_key.as_bytes(),
-            b"Wrong message",
-            &signature.to_bytes(),
-        );
+        let result =
+            verify_ed25519(verifying_key.as_bytes(), b"Wrong message", &signature.to_bytes());
 
         assert!(result.is_err());
     }

@@ -183,21 +183,16 @@ pub static TLS13_CIPHER_SUITES: &[&rustls::Tls13CipherSuite] = tls13::ALL_TLS13_
 pub static TLS12_CIPHER_SUITES: &[&rustls::Tls12CipherSuite] = tls12::ALL_TLS12_CIPHER_SUITES;
 
 // Re-export key exchange groups for custom configurations
-pub use kx::{Secp256r1 as SECP256R1, Secp384r1 as SECP384R1, X25519, ALL_KX_GROUPS};
+pub use kx::{Secp256r1 as SECP256R1, Secp384r1 as SECP384R1, ALL_KX_GROUPS, X25519};
 
 // Re-export cipher suites for custom configurations
 pub use tls12::{
-    TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-    TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-    TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
-    TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-    TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-    TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+    TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+    TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+    TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
 };
 pub use tls13::{
-    TLS13_AES_128_GCM_SHA256,
-    TLS13_AES_256_GCM_SHA384,
-    TLS13_CHACHA20_POLY1305_SHA256,
+    TLS13_AES_128_GCM_SHA256, TLS13_AES_256_GCM_SHA384, TLS13_CHACHA20_POLY1305_SHA256,
 };
 
 #[cfg(test)]
@@ -207,10 +202,7 @@ mod tests {
     #[test]
     fn test_provider_creation() {
         let p = provider();
-        assert!(
-            !p.cipher_suites.is_empty(),
-            "Should have cipher suites"
-        );
+        assert!(!p.cipher_suites.is_empty(), "Should have cipher suites");
         assert!(!p.kx_groups.is_empty(), "Should have key exchange groups");
     }
 

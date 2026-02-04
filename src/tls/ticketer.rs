@@ -121,7 +121,9 @@ impl AeadTicketer {
     /// # Errors
     ///
     /// Returns an error if ticketer creation fails.
-    pub fn arc_with_lifetime(lifetime_secs: u32) -> Result<Arc<dyn ProducesTickets>, rustls::Error> {
+    pub fn arc_with_lifetime(
+        lifetime_secs: u32,
+    ) -> Result<Arc<dyn ProducesTickets>, rustls::Error> {
         Ok(Arc::new(Self::with_lifetime(lifetime_secs)?))
     }
 }

@@ -254,7 +254,8 @@ impl P384KeyPair {
     pub fn diffie_hellman(&self, their_public: &P384PublicKey) -> CrabResult<P384SharedSecret> {
         use p384::ecdh::diffie_hellman;
 
-        let shared = diffie_hellman(self.secret.to_nonzero_scalar(), their_public.inner().as_affine());
+        let shared =
+            diffie_hellman(self.secret.to_nonzero_scalar(), their_public.inner().as_affine());
         P384SharedSecret::from_bytes(shared.raw_secret_bytes().to_vec())
     }
 }
@@ -484,11 +485,11 @@ mod tests {
     fn test_p384_keypair_generation() {
         let keypair = P384KeyPair::generate().unwrap();
         let public_key = keypair.public_key();
-        
+
         // Public key should be 97 bytes uncompressed (04 prefix + 48 x + 48 y)
         assert_eq!(public_key.to_sec1_bytes().len(), 97);
         assert_eq!(public_key.to_sec1_bytes()[0], 0x04);
-        
+
         // Compressed should be 49 bytes
         assert_eq!(public_key.to_sec1_compressed().len(), 49);
     }
@@ -587,7 +588,7 @@ mod tests {
         let bytes = original.to_bytes();
 
         let restored = P384SigningKey::from_bytes(&bytes).unwrap();
-        
+
         // Verify both keys produce the same verifying key
         assert_eq!(
             original.verifying_key().to_sec1_bytes(),
