@@ -74,6 +74,15 @@ serde = { version = "1.0.228", features = ["derive"], optional = true }
 # Zero-copy optimizations (optional)
 bytes = { version = "1.11.0", optional = true }
 
+# TLS CryptoProvider support (optional)
+rustls = { version = "0.23", default-features = false, features = ["std", "tls12"], optional = true }
+p256 = { version = "0.13", default-features = false, features = ["ecdh", "ecdsa", "std", "pkcs8", "pem"], optional = true }
+p384 = { version = "0.13", default-features = false, features = ["ecdh", "ecdsa", "std", "pkcs8", "pem"], optional = true }
+ecdsa = { version = "0.16", default-features = false, features = ["signing", "verifying", "std", "der"], optional = true }
+digest = { version = "0.10", optional = true }
+const-oid = { version = "0.9", optional = true }
+rand = { version = "0.8", optional = true }
+
 [dev-dependencies]
 criterion = { version = "0.7.0", features = ["html_reports"] }
 proptest = "1.9.0"
@@ -107,6 +116,10 @@ serde-support = ["serde"]
 zero-copy = ["bytes"]
 # WASM support is automatic via target-specific getrandom dependency
 wasm = []
+# TLS CryptoProvider support - implements rustls::crypto::CryptoProvider
+# Note: TLS feature always enables RSA for certificate validation
+tls = ["dep:rustls", "dep:p256", "dep:p384", "dep:ecdsa", "dep:digest", "dep:const-oid", "dep:rand", "rsa-support"]
+rustls-provider = ["tls"]
 
 [[example]]
 name = "rsa_example"
