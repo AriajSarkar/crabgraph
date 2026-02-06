@@ -119,11 +119,21 @@ pub mod rand;
 pub mod secrets;
 pub mod utils;
 
+/// TLS CryptoProvider implementation for rustls.
+///
+/// This module provides a `rustls::crypto::CryptoProvider` implementation
+/// using crabgraph's cryptographic primitives, allowing rustls-based
+/// applications to use crabgraph for TLS operations.
+///
+/// **Requires**: `tls` feature flag
+#[cfg(feature = "tls")]
+pub mod tls;
+
 // Re-export commonly used types
 pub use aead::{AesGcm256, ChaCha20Poly1305, Ciphertext, CrabAead};
 pub use asym::{Ed25519KeyPair, X25519KeyPair};
 pub use errors::{CrabError, CrabResult};
-pub use hash::{sha256, sha512};
+pub use hash::{sha256, sha384, sha512};
 
 // Re-export extended hash functions (when feature is enabled)
 #[cfg(feature = "extended-hashes")]
@@ -155,7 +165,7 @@ pub mod prelude {
             X25519SharedSecret,
         },
         encoding::{base64_decode, base64_encode, hex_decode, hex_encode},
-        hash::{sha256, sha256_hex, sha512, sha512_hex},
+        hash::{sha256, sha256_hex, sha384, sha384_hex, sha512, sha512_hex},
         kdf::{
             argon2_derive, argon2_derive_with_params, hkdf_extract_expand, hkdf_sha256,
             pbkdf2_derive, pbkdf2_derive_sha256, pbkdf2_derive_sha512, Argon2Params,

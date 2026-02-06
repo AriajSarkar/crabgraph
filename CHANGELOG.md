@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0-pre] - 2026-02-05
+
+### Added
+- **TLS CryptoProvider** - Enterprise-grade `rustls::crypto::CryptoProvider` implementation
+  - Enables crabgraph as the TLS crypto backend for reqwest, hyper-rustls, tokio-rustls, etc.
+  - Eliminates need for external crypto backends (ring/aws-lc-rs)
+  - Feature flag: `tls` or `rustls-provider`
+  
+- **TLS 1.3 Cipher Suites**:
+  - `TLS13_AES_256_GCM_SHA384`
+  - `TLS13_CHACHA20_POLY1305_SHA256`
+  - `TLS13_AES_128_GCM_SHA256`
+
+- **TLS 1.2 Cipher Suites**:
+  - `TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384`
+  - `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`
+  - `TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256`
+  - `TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384`
+  - `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256`
+  - `TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256`
+
+- **Key Exchange Groups**: X25519, P-256 (secp256r1), P-384 (secp384r1)
+
+- **P-256 (secp256r1) Support** - NIST curve implementation (`tls` feature)
+  - `P256KeyPair` - ECDH key exchange
+  - `P256SigningKey` / `P256VerifyingKey` - ECDSA signatures
+  - PKCS#8/SEC1 key import/export
+
+- **P-384 (secp384r1) Support** - NIST curve implementation (`tls` feature)
+  - `P384KeyPair` - ECDH key exchange  
+  - `P384SigningKey` / `P384VerifyingKey` - ECDSA signatures
+  - PKCS#8/SEC1 key import/export
+
+- **SHA-384 Hash Function** - Required for TLS cipher suites
+  - `sha384()` and `sha384_hex()` functions
+  - Enabled with `tls` feature
+
+- **TLS Module** (`src/tls/`) - Complete rustls integration
+  - `tls::provider()` - Get the CryptoProvider
+  - `tls::install_default()` - Install as global default
+  - AEAD encryption for TLS records
+  - Session ticketer with AES-256-GCM
+  - Signature verification for WebPKI
+
+### Changed
+- Test count increased from 313 to **418 tests** (105 new tests for TLS, P-256, P-384)
+
+### Dependencies Added (TLS feature)
+- `rustls` 0.23 - TLS library
+- `p256` 0.13 - P-256/secp256r1 curve
+- `p384` 0.13 - P-384/secp384r1 curve
+- `ecdsa` 0.16 - ECDSA signatures
+- `digest` 0.10 - Hash trait requirements
+- `const-oid` 0.9 - OID constants for signatures
+- `rand` 0.8 - RNG for RSA-PSS signing
+
 ## [0.3.3] - 2025-11-19
 
 ### Changed

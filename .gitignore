@@ -18,6 +18,8 @@ fuzz/artifacts/
 *~
 .DS_Store
 copilot-instructions.md
+prompts/
+.agent/
 
 # Testing
 *.profraw

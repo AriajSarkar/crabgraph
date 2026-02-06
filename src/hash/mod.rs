@@ -6,7 +6,7 @@
 //! - BLAKE2b-512 and BLAKE2s-256 (with `extended-hashes` feature)
 //! - BLAKE3 (with `extended-hashes` feature)
 
-use sha2::{Digest, Sha256, Sha512};
+use sha2::{Digest, Sha256, Sha384, Sha512};
 
 #[cfg(feature = "extended-hashes")]
 use sha3::{Sha3_256, Sha3_512};
@@ -19,6 +19,9 @@ use blake3::Hasher as Blake3Hasher;
 
 /// SHA-256 digest output (32 bytes).
 pub type Sha256Digest = [u8; 32];
+
+/// SHA-384 digest output (48 bytes).
+pub type Sha384Digest = [u8; 48];
 
 /// SHA-512 digest output (64 bytes).
 pub type Sha512Digest = [u8; 64];
@@ -88,6 +91,38 @@ pub fn sha512(data: &[u8]) -> Sha512Digest {
 /// ```
 pub fn sha256_hex(data: &[u8]) -> String {
     hex::encode(sha256(data))
+}
+
+/// Computes SHA-384 hash of the input data.
+///
+/// SHA-384 is a truncated version of SHA-512 with a different initialization vector.
+/// It provides 192-bit security against collision attacks and is commonly used
+/// in TLS cipher suites (e.g., TLS_AES_256_GCM_SHA384).
+///
+/// # Example
+/// ```
+/// use crabgraph::hash::sha384;
+///
+/// let digest = sha384(b"hello world");
+/// assert_eq!(digest.len(), 48);
+/// ```
+pub fn sha384(data: &[u8]) -> Sha384Digest {
+    let mut hasher = Sha384::new();
+    hasher.update(data);
+    hasher.finalize().into()
+}
+
+/// Computes SHA-384 hash with hex-encoded output.
+///
+/// # Example
+/// ```
+/// use crabgraph::hash::sha384_hex;
+///
+/// let hex_digest = sha384_hex(b"hello");
+/// assert_eq!(hex_digest.len(), 96); // 48 bytes * 2 hex chars
+/// ```
+pub fn sha384_hex(data: &[u8]) -> String {
+    hex::encode(sha384(data))
 }
 
 /// Computes SHA-512 hash with hex-encoded output.
@@ -390,6 +425,42 @@ mod tests {
     fn test_sha512_hex() {
         let hex_digest = sha512_hex(b"");
         assert_eq!(hex_digest.len(), 128);
+    }
+
+    // ========================================================================
+    // SHA-384 Tests
+    // ========================================================================
+
+    #[test]
+    fn test_sha384_empty() {
+        // SHA-384 of empty string (NIST test vector)
+        let expected = hex!(
+            "38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da"
+            "274edebfe76f65fbd51ad2f14898b95b"
+        );
+        let digest = sha384(b"");
+        assert_eq!(digest, expected);
+    }
+
+    #[test]
+    fn test_sha384_abc() {
+        // SHA-384 of "abc" (NIST test vector)
+        let expected = hex!(
+            "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed"
+            "8086072ba1e7cc2358baeca134c825a7"
+        );
+        let digest = sha384(b"abc");
+        assert_eq!(digest, expected);
+    }
+
+    #[test]
+    fn test_sha384_hex() {
+        let hex_digest = sha384_hex(b"abc");
+        assert_eq!(hex_digest.len(), 96); // 48 bytes * 2 hex chars
+        assert_eq!(
+            hex_digest,
+            "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7"
+        );
     }
 
     // ========================================================================
