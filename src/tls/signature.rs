@@ -442,9 +442,7 @@ fn verify_ecdsa_p256_sha384(
 
     // Hash the message with SHA-384 and verify using prehash
     let digest = Sha384::digest(message);
-    verifying_key
-        .verify_prehash(&digest, &sig)
-        .map_err(|_| InvalidSignature)
+    verifying_key.verify_prehash(&digest, &sig).map_err(|_| InvalidSignature)
 }
 
 /// Verify an ECDSA P-384 signature with SHA-256.
@@ -464,9 +462,7 @@ fn verify_ecdsa_p384_sha256(
 
     // Hash the message with SHA-256 and verify using prehash
     let digest = Sha256::digest(message);
-    verifying_key
-        .verify_prehash(&digest, &sig)
-        .map_err(|_| InvalidSignature)
+    verifying_key.verify_prehash(&digest, &sig).map_err(|_| InvalidSignature)
 }
 
 /// Verify an ECDSA P-384 signature with SHA-384.
