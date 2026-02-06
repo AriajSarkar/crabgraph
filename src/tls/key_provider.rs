@@ -101,15 +101,33 @@ impl EcdsaSigningKey {
     }
 
     /// Parse an ECDSA key from SEC1 DER format.
+    ///
+    /// SEC1 DER contains an ASN.1 `ECPrivateKey` structure (not raw scalar bytes).
+    /// Falls back to raw scalar parsing if SEC1 DER decoding fails, supporting
+    /// both formats.
     pub fn from_sec1_der(der: &[u8]) -> Result<Self, rustls::Error> {
-        // Try P-256 first
+        // Try P-256 SEC1 DER first, then fall back to raw scalar
+        if let Ok(secret_key) = p256::SecretKey::from_sec1_der(der) {
+            let key: p256::ecdsa::SigningKey = secret_key.into();
+            return Ok(Self {
+                inner: EcdsaKeyInner::P256(key),
+                scheme: SignatureScheme::ECDSA_NISTP256_SHA256,
+            });
+        }
         if let Ok(key) = p256::ecdsa::SigningKey::from_slice(der) {
             return Ok(Self {
                 inner: EcdsaKeyInner::P256(key),
                 scheme: SignatureScheme::ECDSA_NISTP256_SHA256,
             });
         }
-        // Try P-384
+        // Try P-384 SEC1 DER first, then fall back to raw scalar
+        if let Ok(secret_key) = p384::SecretKey::from_sec1_der(der) {
+            let key: p384::ecdsa::SigningKey = secret_key.into();
+            return Ok(Self {
+                inner: EcdsaKeyInner::P384(key),
+                scheme: SignatureScheme::ECDSA_NISTP384_SHA384,
+            });
+        }
         if let Ok(key) = p384::ecdsa::SigningKey::from_slice(der) {
             return Ok(Self {
                 inner: EcdsaKeyInner::P384(key),

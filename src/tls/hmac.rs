@@ -112,17 +112,16 @@ impl Hkdf for HkdfSha256 {
     }
 
     fn expander_for_okm(&self, okm: &OkmBlock) -> Box<dyn HkdfExpander> {
-        // Use the OKM directly as the PRK. OkmBlock should always be hash-length (32 bytes
-        // for SHA-256) per the rustls API contract; assert in debug builds to catch misuse.
-        debug_assert_eq!(
+        // Use the OKM directly as the PRK. OkmBlock must be exactly hash-length (32 bytes
+        // for SHA-256) per the rustls API contract; enforce at runtime.
+        assert_eq!(
             okm.as_ref().len(),
             32,
             "OkmBlock length mismatch: expected 32 bytes for SHA-256, got {}",
             okm.as_ref().len()
         );
         let mut prk = [0u8; 32];
-        prk[..okm.as_ref().len().min(32)]
-            .copy_from_slice(&okm.as_ref()[..okm.as_ref().len().min(32)]);
+        prk.copy_from_slice(okm.as_ref());
         Box::new(HkdfSha256Expander {
             prk: hkdf::hmac::digest::Output::<Sha256>::from(prk),
         })
@@ -181,17 +180,16 @@ impl Hkdf for HkdfSha384 {
     }
 
     fn expander_for_okm(&self, okm: &OkmBlock) -> Box<dyn HkdfExpander> {
-        // OkmBlock should always be hash-length (48 bytes for SHA-384) per the
-        // rustls API contract; assert in debug builds to catch misuse.
-        debug_assert_eq!(
+        // OkmBlock must be exactly hash-length (48 bytes for SHA-384) per the
+        // rustls API contract; enforce at runtime.
+        assert_eq!(
             okm.as_ref().len(),
             48,
             "OkmBlock length mismatch: expected 48 bytes for SHA-384, got {}",
             okm.as_ref().len()
         );
         let mut prk = [0u8; 48];
-        prk[..okm.as_ref().len().min(48)]
-            .copy_from_slice(&okm.as_ref()[..okm.as_ref().len().min(48)]);
+        prk.copy_from_slice(okm.as_ref());
         Box::new(HkdfSha384Expander {
             prk: hkdf::hmac::digest::Output::<Sha384>::from(prk),
         })
