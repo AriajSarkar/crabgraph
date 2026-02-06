@@ -28,10 +28,6 @@
 //!
 //! ```ignore
 //! use crabgraph::tls::provider;
-
-// Allow dead_code for internal helpers that are part of the complete implementation
-// but may not be used in all configurations or tests
-#![allow(dead_code)]
 //! use rustls::ClientConfig;
 //! use std::sync::Arc;
 //!
@@ -68,15 +64,23 @@
 //! While the underlying primitives are audited, this integration layer has not
 //! been independently audited. Use in production after appropriate security review.
 
+// Allow dead_code for internal helpers that are part of the complete implementation
+// but may not be used in all configurations or tests
+#[allow(dead_code)]
 mod aead;
+#[allow(dead_code)]
 mod hash;
+#[allow(dead_code)]
 mod hmac;
 mod key_provider;
 mod kx;
 mod random;
 mod signature;
+#[allow(dead_code)]
 mod ticketer;
+#[allow(dead_code)]
 mod tls12;
+#[allow(dead_code)]
 mod tls13;
 
 use rustls::crypto::CryptoProvider;

@@ -106,10 +106,10 @@ fn test_p256_ecdsa() {
     let signature = signing_key.sign(message).unwrap();
 
     // Verify the signature (returns Ok(true) on success)
-    assert_eq!(verifying_key.verify(message, &signature).unwrap(), true);
+    assert!(verifying_key.verify(message, &signature).unwrap());
 
     // Verify that wrong message fails (returns Ok(false))
-    assert_eq!(verifying_key.verify(b"Wrong message", &signature).unwrap(), false);
+    assert!(!verifying_key.verify(b"Wrong message", &signature).unwrap());
 }
 
 #[test]
@@ -141,10 +141,10 @@ fn test_p384_ecdsa() {
     let signature = signing_key.sign(message).unwrap();
 
     // Verify the signature (returns Ok(true) on success)
-    assert_eq!(verifying_key.verify(message, &signature).unwrap(), true);
+    assert!(verifying_key.verify(message, &signature).unwrap());
 
     // Verify that wrong message fails (returns Ok(false))
-    assert_eq!(verifying_key.verify(b"Wrong message", &signature).unwrap(), false);
+    assert!(!verifying_key.verify(b"Wrong message", &signature).unwrap());
 }
 
 #[test]

@@ -240,7 +240,7 @@ impl Tls12AeadAlgorithm for Aes128GcmTls12Aead {
     fn decrypter(&self, key: AeadKey, write_iv: &[u8]) -> Box<dyn MessageDecrypter> {
         Box::new(Tls12GcmDecrypter::<Aes128Gcm> {
             cipher: Aes128Gcm::new_from_slice(key.as_ref()).unwrap(),
-            implicit_iv: write_iv.try_into().unwrap_or([0u8; 4]),
+            implicit_iv: write_iv.try_into().expect("TLS 1.2 GCM implicit IV must be 4 bytes"),
         })
     }
 
@@ -285,7 +285,7 @@ impl Tls12AeadAlgorithm for Aes256GcmTls12Aead {
     fn decrypter(&self, key: AeadKey, write_iv: &[u8]) -> Box<dyn MessageDecrypter> {
         Box::new(Tls12GcmDecrypter::<Aes256Gcm> {
             cipher: Aes256Gcm::new_from_slice(key.as_ref()).unwrap(),
-            implicit_iv: write_iv.try_into().unwrap_or([0u8; 4]),
+            implicit_iv: write_iv.try_into().expect("TLS 1.2 GCM implicit IV must be 4 bytes"),
         })
     }
 

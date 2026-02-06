@@ -431,18 +431,20 @@ fn verify_ecdsa_p256_sha384(
     message: &[u8],
     signature: &[u8],
 ) -> Result<(), InvalidSignature> {
-    use p256::ecdsa::{signature::Verifier, Signature, VerifyingKey};
+    use p256::ecdsa::{signature::hazmat::PrehashVerifier, Signature, VerifyingKey};
+    use sha2::{Digest, Sha384};
 
-    // For P-256 with SHA-384, we need to hash manually and use the prehash verifier
     let verifying_key = VerifyingKey::from_sec1_bytes(public_key).map_err(|_| InvalidSignature)?;
 
     let sig = Signature::from_der(signature)
         .or_else(|_| Signature::from_slice(signature))
         .map_err(|_| InvalidSignature)?;
 
-    // Note: P-256 typically uses SHA-256; SHA-384 variant is less common
-    // For proper implementation, we'd need prehash verification
-    verifying_key.verify(message, &sig).map_err(|_| InvalidSignature)
+    // Hash the message with SHA-384 and verify using prehash
+    let digest = Sha384::digest(message);
+    verifying_key
+        .verify_prehash(&digest, &sig)
+        .map_err(|_| InvalidSignature)
 }
 
 /// Verify an ECDSA P-384 signature with SHA-256.
@@ -451,7 +453,8 @@ fn verify_ecdsa_p384_sha256(
     message: &[u8],
     signature: &[u8],
 ) -> Result<(), InvalidSignature> {
-    use p384::ecdsa::{signature::Verifier, Signature, VerifyingKey};
+    use p384::ecdsa::{signature::hazmat::PrehashVerifier, Signature, VerifyingKey};
+    use sha2::{Digest, Sha256};
 
     let verifying_key = VerifyingKey::from_sec1_bytes(public_key).map_err(|_| InvalidSignature)?;
 
@@ -459,7 +462,11 @@ fn verify_ecdsa_p384_sha256(
         .or_else(|_| Signature::from_slice(signature))
         .map_err(|_| InvalidSignature)?;
 
-    verifying_key.verify(message, &sig).map_err(|_| InvalidSignature)
+    // Hash the message with SHA-256 and verify using prehash
+    let digest = Sha256::digest(message);
+    verifying_key
+        .verify_prehash(&digest, &sig)
+        .map_err(|_| InvalidSignature)
 }
 
 /// Verify an ECDSA P-384 signature with SHA-384.

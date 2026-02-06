@@ -277,7 +277,7 @@ Use crabgraph as the TLS crypto backend for reqwest, hyper-rustls, and other rus
 
 ```toml
 [dependencies]
-crabgraph = { version = "0.4", features = ["tls"] }
+crabgraph = { version = "0.4.0-pre", features = ["tls"] }
 ```
 
 ```rust

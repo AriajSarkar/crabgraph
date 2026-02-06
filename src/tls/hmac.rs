@@ -140,7 +140,8 @@ impl HkdfExpander for HkdfSha256Expander {
 
     fn expand_block(&self, info: &[&[u8]]) -> OkmBlock {
         let mut output = [0u8; 32];
-        let _ = self.expand_slice(info, &mut output);
+        self.expand_slice(info, &mut output)
+            .expect("HKDF expand_block should not fail for hash_len output");
         OkmBlock::new(&output)
     }
 
@@ -200,7 +201,8 @@ impl HkdfExpander for HkdfSha384Expander {
 
     fn expand_block(&self, info: &[&[u8]]) -> OkmBlock {
         let mut output = [0u8; 48];
-        let _ = self.expand_slice(info, &mut output);
+        self.expand_slice(info, &mut output)
+            .expect("HKDF expand_block should not fail for hash_len output");
         OkmBlock::new(&output)
     }
 
