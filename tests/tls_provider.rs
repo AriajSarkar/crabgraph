@@ -164,17 +164,20 @@ fn test_sha384() {
 
 #[test]
 fn test_cipher_suite_names() {
+    use rustls::CipherSuite;
+
     let provider = tls::provider();
 
-    // Get suite names for debugging
-    let suite_names: Vec<_> = provider.cipher_suites.iter().map(|s| s.suite()).collect();
+    let suites: Vec<_> = provider.cipher_suites.iter().map(|s| s.suite()).collect();
 
     // Verify TLS 1.3 suites are present
-    assert!(suite_names.iter().any(|s| format!("{:?}", s).contains("TLS13_AES_256_GCM")));
-    assert!(suite_names.iter().any(|s| format!("{:?}", s).contains("TLS13_AES_128_GCM")));
-    assert!(suite_names.iter().any(|s| format!("{:?}", s).contains("TLS13_CHACHA20")));
+    assert!(suites.contains(&CipherSuite::TLS13_AES_256_GCM_SHA384));
+    assert!(suites.contains(&CipherSuite::TLS13_AES_128_GCM_SHA256));
+    assert!(suites.contains(&CipherSuite::TLS13_CHACHA20_POLY1305_SHA256));
 
     // Verify TLS 1.2 suites are present
-    assert!(suite_names.iter().any(|s| format!("{:?}", s).contains("ECDHE_RSA")));
-    assert!(suite_names.iter().any(|s| format!("{:?}", s).contains("ECDHE_ECDSA")));
+    assert!(suites.contains(&CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256));
+    assert!(suites.contains(&CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384));
+    assert!(suites.contains(&CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256));
+    assert!(suites.contains(&CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384));
 }

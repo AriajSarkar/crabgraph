@@ -22,6 +22,9 @@ pub struct HmacSha256;
 
 impl Hmac for HmacSha256 {
     fn with_key(&self, key: &[u8]) -> Box<dyn Key> {
+        // HMAC spec (RFC 2104) accepts any key length: keys shorter than the
+        // block size are zero-padded, longer keys are hashed first.
+        // SimpleHmac::new_from_slice therefore never returns an error.
         Box::new(HmacSha256Key(
             SimpleHmac::<Sha256>::new_from_slice(key).expect("HMAC key should be valid"),
         ))
@@ -56,6 +59,9 @@ pub struct HmacSha384;
 
 impl Hmac for HmacSha384 {
     fn with_key(&self, key: &[u8]) -> Box<dyn Key> {
+        // HMAC spec (RFC 2104) accepts any key length: keys shorter than the
+        // block size are zero-padded, longer keys are hashed first.
+        // SimpleHmac::new_from_slice therefore never returns an error.
         Box::new(HmacSha384Key(
             SimpleHmac::<Sha384>::new_from_slice(key).expect("HMAC key should be valid"),
         ))
@@ -106,7 +112,14 @@ impl Hkdf for HkdfSha256 {
     }
 
     fn expander_for_okm(&self, okm: &OkmBlock) -> Box<dyn HkdfExpander> {
-        // Use the OKM directly as the PRK
+        // Use the OKM directly as the PRK. OkmBlock should always be hash-length (32 bytes
+        // for SHA-256) per the rustls API contract; assert in debug builds to catch misuse.
+        debug_assert_eq!(
+            okm.as_ref().len(),
+            32,
+            "OkmBlock length mismatch: expected 32 bytes for SHA-256, got {}",
+            okm.as_ref().len()
+        );
         let mut prk = [0u8; 32];
         prk[..okm.as_ref().len().min(32)]
             .copy_from_slice(&okm.as_ref()[..okm.as_ref().len().min(32)]);
@@ -168,6 +181,14 @@ impl Hkdf for HkdfSha384 {
     }
 
     fn expander_for_okm(&self, okm: &OkmBlock) -> Box<dyn HkdfExpander> {
+        // OkmBlock should always be hash-length (48 bytes for SHA-384) per the
+        // rustls API contract; assert in debug builds to catch misuse.
+        debug_assert_eq!(
+            okm.as_ref().len(),
+            48,
+            "OkmBlock length mismatch: expected 48 bytes for SHA-384, got {}",
+            okm.as_ref().len()
+        );
         let mut prk = [0u8; 48];
         prk[..okm.as_ref().len().min(48)]
             .copy_from_slice(&okm.as_ref()[..okm.as_ref().len().min(48)]);
@@ -378,5 +399,138 @@ mod tests {
         let tag2 = key.sign_concat(b"hello world", &[], b"");
 
         assert_eq!(tag1.as_ref(), tag2.as_ref());
+    }
+
+    // ========================================================================
+    // HKDF Tests — RFC 5869 Test Vectors
+    // ========================================================================
+
+    #[test]
+    fn test_hkdf_sha256_extract_expand_rfc5869_case1() {
+        // RFC 5869 Test Case 1: Basic test case with SHA-256
+        let ikm = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
+        let salt = hex::decode("000102030405060708090a0b0c").unwrap();
+        let info = hex::decode("f0f1f2f3f4f5f6f7f8f9").unwrap();
+        let expected_okm = hex::decode(
+            "3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf34007208d5b887185865",
+        )
+        .unwrap();
+
+        let hkdf = HkdfSha256;
+        let expander = hkdf.extract_from_secret(Some(&salt), &ikm);
+
+        let mut okm = vec![0u8; 42];
+        expander.expand_slice(&[&info], &mut okm).expect("HKDF expand should succeed");
+
+        assert_eq!(okm, expected_okm);
+    }
+
+    #[test]
+    fn test_hkdf_sha256_extract_expand_rfc5869_case2() {
+        // RFC 5869 Test Case 2: Test with SHA-256 and longer inputs/outputs
+        let ikm = hex::decode(
+            "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f\
+             202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f\
+             404142434445464748494a4b4c4d4e4f",
+        )
+        .unwrap();
+        let salt = hex::decode(
+            "606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f\
+             808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f\
+             a0a1a2a3a4a5a6a7a8a9aaabacadaeaf",
+        )
+        .unwrap();
+        let info = hex::decode(
+            "b0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdce\
+             cfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebec\
+             edeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff",
+        )
+        .unwrap();
+        let expected_okm = hex::decode(
+            "b11e398dc80327a1c8e7f78c596a49344f012eda2d4efad8a050cc4c19afa97c\
+             59045a99cac7827271cb41c65e590e09da3275600c2f09b8367793a9aca3db71\
+             cc30c58179ec3e87c14c01d5c1f3434f1d87",
+        )
+        .unwrap();
+
+        let hkdf = HkdfSha256;
+        let expander = hkdf.extract_from_secret(Some(&salt), &ikm);
+
+        let mut okm = vec![0u8; 82];
+        expander.expand_slice(&[&info], &mut okm).expect("HKDF expand should succeed");
+
+        assert_eq!(okm, expected_okm);
+    }
+
+    #[test]
+    fn test_hkdf_sha256_extract_expand_rfc5869_case3() {
+        // RFC 5869 Test Case 3: Test with SHA-256 and zero-length salt/info
+        let ikm = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
+        let info: &[u8] = &[];
+        let expected_okm = hex::decode(
+            "8da4e775a563c18f715f802a063c5a31b8a11f5c5ee1879ec3454e5f3c738d2d\
+             9d201395faa4b61a96c8",
+        )
+        .unwrap();
+
+        let hkdf = HkdfSha256;
+        // Pass None for salt (uses default zero salt)
+        let expander = hkdf.extract_from_secret(None, &ikm);
+
+        let mut okm = vec![0u8; 42];
+        expander.expand_slice(&[info], &mut okm).expect("HKDF expand should succeed");
+
+        assert_eq!(okm, expected_okm);
+    }
+
+    #[test]
+    fn test_hkdf_sha256_expand_block() {
+        // Verify expand_block returns correct hash-length output
+        let ikm = b"input key material";
+        let hkdf = HkdfSha256;
+        let expander = hkdf.extract_from_secret(None, ikm);
+
+        let block = expander.expand_block(&[b"info"]);
+        assert_eq!(block.as_ref().len(), 32);
+
+        // expand_block should be consistent
+        let block2 = expander.expand_block(&[b"info"]);
+        assert_eq!(block.as_ref(), block2.as_ref());
+    }
+
+    #[test]
+    fn test_hkdf_sha256_zero_ikm() {
+        // Test extract_from_zero_ikm (used in TLS 1.3 key schedule)
+        let hkdf = HkdfSha256;
+        let expander = hkdf.extract_from_zero_ikm(None);
+
+        let block = expander.expand_block(&[b"test label"]);
+        assert_eq!(block.as_ref().len(), 32);
+    }
+
+    #[test]
+    fn test_hkdf_sha384_extract_expand() {
+        // Basic test for SHA-384 HKDF
+        let ikm = b"input key material for sha384";
+        let salt = b"salt384";
+        let info = b"info384";
+
+        let hkdf = HkdfSha384;
+        let expander = hkdf.extract_from_secret(Some(salt), ikm);
+
+        let mut okm = vec![0u8; 48];
+        expander
+            .expand_slice(&[info.as_ref()], &mut okm)
+            .expect("HKDF-SHA384 expand should succeed");
+
+        // Output should be non-zero
+        assert_ne!(okm, vec![0u8; 48]);
+
+        // Should be consistent
+        let mut okm2 = vec![0u8; 48];
+        expander
+            .expand_slice(&[info.as_ref()], &mut okm2)
+            .expect("HKDF-SHA384 expand should succeed");
+        assert_eq!(okm, okm2);
     }
 }

@@ -696,6 +696,10 @@ impl MessageDecrypter for Tls12ChaChaDecrypter {
 // ============================================================================
 
 fn build_tls12_iv(implicit: &[u8], explicit: &[u8]) -> [u8; 12] {
+    // TLS 1.2 GCM nonce = 4-byte implicit (fixed) IV || 8-byte explicit nonce.
+    // Assert expected lengths in debug builds to catch caller misuse.
+    debug_assert_eq!(implicit.len(), 4, "TLS 1.2 implicit IV must be 4 bytes");
+    debug_assert_eq!(explicit.len(), 8, "TLS 1.2 explicit nonce must be 8 bytes");
     let mut full = [0u8; 12];
     let implicit_len = implicit.len().min(4);
     let explicit_len = explicit.len().min(8);
