@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["crabgraph",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.93.0/core/ops/drop/trait.Drop.html\" title=\"trait core::ops::drop::Drop\">Drop</a> for <a class=\"struct\" href=\"crabgraph/asym/rsa/struct.RsaKeyPair.html\" title=\"struct crabgraph::asym::rsa::RsaKeyPair\">RsaKeyPair</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.93.0/core/ops/drop/trait.Drop.html\" title=\"trait core::ops::drop::Drop\">Drop</a> for <a class=\"struct\" href=\"crabgraph/secrets/struct.SecretVec.html\" title=\"struct crabgraph::secrets::SecretVec\">SecretVec</a>"],["impl&lt;C: <a class=\"trait\" href=\"crabgraph/key_rotation/trait.RotatableAead.html\" title=\"trait crabgraph::key_rotation::RotatableAead\">RotatableAead</a>&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.93.0/core/ops/drop/trait.Drop.html\" title=\"trait core::ops::drop::Drop\">Drop</a> for <a class=\"struct\" href=\"crabgraph/key_rotation/struct.KeyRotationManager.html\" title=\"struct crabgraph::key_rotation::KeyRotationManager\">KeyRotationManager</a>&lt;C&gt;"],["impl&lt;const N: <a class=\"primitive\" href=\"https://doc.rust-lang.org/1.93.0/std/primitive.usize.html\">usize</a>&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.93.0/core/ops/drop/trait.Drop.html\" title=\"trait core::ops::drop::Drop\">Drop</a> for <a class=\"struct\" href=\"crabgraph/secrets/struct.SecretArray.html\" title=\"struct crabgraph::secrets::SecretArray\">SecretArray</a>&lt;N&gt;"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[1481]}
