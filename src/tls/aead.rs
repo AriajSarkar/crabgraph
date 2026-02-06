@@ -256,11 +256,18 @@ impl Tls12AeadAlgorithm for Aes128GcmTls12Aead {
         &self,
         key: AeadKey,
         iv: &[u8],
-        _explicit: &[u8],
+        explicit: &[u8],
     ) -> Result<ConnectionTrafficSecrets, UnsupportedOperationError> {
+        // TLS 1.2 GCM uses 4-byte fixed IV + 8-byte explicit nonce = 12-byte nonce
+        if iv.len() != 4 || explicit.len() != 8 {
+            return Err(UnsupportedOperationError);
+        }
+        let mut full_iv = [0u8; 12];
+        full_iv[..4].copy_from_slice(iv);
+        full_iv[4..].copy_from_slice(explicit);
         Ok(ConnectionTrafficSecrets::Aes128Gcm {
             key,
-            iv: Iv::new(iv[..].try_into().unwrap()),
+            iv: Iv::new(full_iv),
         })
     }
 }
@@ -301,11 +308,18 @@ impl Tls12AeadAlgorithm for Aes256GcmTls12Aead {
         &self,
         key: AeadKey,
         iv: &[u8],
-        _explicit: &[u8],
+        explicit: &[u8],
     ) -> Result<ConnectionTrafficSecrets, UnsupportedOperationError> {
+        // TLS 1.2 GCM uses 4-byte fixed IV + 8-byte explicit nonce = 12-byte nonce
+        if iv.len() != 4 || explicit.len() != 8 {
+            return Err(UnsupportedOperationError);
+        }
+        let mut full_iv = [0u8; 12];
+        full_iv[..4].copy_from_slice(iv);
+        full_iv[4..].copy_from_slice(explicit);
         Ok(ConnectionTrafficSecrets::Aes256Gcm {
             key,
-            iv: Iv::new(iv[..].try_into().unwrap()),
+            iv: Iv::new(full_iv),
         })
     }
 }

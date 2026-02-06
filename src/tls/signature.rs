@@ -18,10 +18,8 @@ use rustls::SignatureScheme;
 /// verification in TLS handshakes.
 pub static SUPPORTED_SIG_ALGS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgorithms {
     all: &[
-        // ECDSA algorithms
+        // ECDSA algorithms (RFC 8446 compliant pairs only)
         ECDSA_P256_SHA256,
-        ECDSA_P256_SHA384,
-        ECDSA_P384_SHA256,
         ECDSA_P384_SHA384,
         // Ed25519
         ED25519,
@@ -35,10 +33,10 @@ pub static SUPPORTED_SIG_ALGS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgori
         RSA_PKCS1_SHA512,
     ],
     mapping: &[
-        // ECDSA P-256 with SHA-256
-        (SignatureScheme::ECDSA_NISTP256_SHA256, &[ECDSA_P256_SHA256, ECDSA_P384_SHA256]),
-        // ECDSA P-384 with SHA-384
-        (SignatureScheme::ECDSA_NISTP384_SHA384, &[ECDSA_P384_SHA384, ECDSA_P256_SHA384]),
+        // ECDSA P-256 with SHA-256 (RFC 8446: ecdsa_secp256r1_sha256)
+        (SignatureScheme::ECDSA_NISTP256_SHA256, &[ECDSA_P256_SHA256]),
+        // ECDSA P-384 with SHA-384 (RFC 8446: ecdsa_secp384r1_sha384)
+        (SignatureScheme::ECDSA_NISTP384_SHA384, &[ECDSA_P384_SHA384]),
         // Ed25519
         (SignatureScheme::ED25519, &[ED25519]),
         // RSA-PSS
@@ -78,56 +76,6 @@ impl SignatureVerificationAlgorithm for EcdsaP256Sha256 {
         signature: &[u8],
     ) -> Result<(), InvalidSignature> {
         verify_ecdsa_p256_sha256(public_key, message, signature)
-    }
-}
-
-/// ECDSA P-256 with SHA-384 signature verification.
-static ECDSA_P256_SHA384: &dyn SignatureVerificationAlgorithm = &EcdsaP256Sha384;
-
-#[derive(Debug)]
-struct EcdsaP256Sha384;
-
-impl SignatureVerificationAlgorithm for EcdsaP256Sha384 {
-    fn public_key_alg_id(&self) -> AlgorithmIdentifier {
-        AlgorithmIdentifier::from_slice(ECDSA_P256_ALG_ID)
-    }
-
-    fn signature_alg_id(&self) -> AlgorithmIdentifier {
-        AlgorithmIdentifier::from_slice(ECDSA_SHA384_ALG_ID)
-    }
-
-    fn verify_signature(
-        &self,
-        public_key: &[u8],
-        message: &[u8],
-        signature: &[u8],
-    ) -> Result<(), InvalidSignature> {
-        verify_ecdsa_p256_sha384(public_key, message, signature)
-    }
-}
-
-/// ECDSA P-384 with SHA-256 signature verification.
-static ECDSA_P384_SHA256: &dyn SignatureVerificationAlgorithm = &EcdsaP384Sha256;
-
-#[derive(Debug)]
-struct EcdsaP384Sha256;
-
-impl SignatureVerificationAlgorithm for EcdsaP384Sha256 {
-    fn public_key_alg_id(&self) -> AlgorithmIdentifier {
-        AlgorithmIdentifier::from_slice(ECDSA_P384_ALG_ID)
-    }
-
-    fn signature_alg_id(&self) -> AlgorithmIdentifier {
-        AlgorithmIdentifier::from_slice(ECDSA_SHA256_ALG_ID)
-    }
-
-    fn verify_signature(
-        &self,
-        public_key: &[u8],
-        message: &[u8],
-        signature: &[u8],
-    ) -> Result<(), InvalidSignature> {
-        verify_ecdsa_p384_sha256(public_key, message, signature)
     }
 }
 
@@ -425,46 +373,6 @@ fn verify_ecdsa_p256_sha256(
     verifying_key.verify(message, &sig).map_err(|_| InvalidSignature)
 }
 
-/// Verify an ECDSA P-256 signature with SHA-384.
-fn verify_ecdsa_p256_sha384(
-    public_key: &[u8],
-    message: &[u8],
-    signature: &[u8],
-) -> Result<(), InvalidSignature> {
-    use p256::ecdsa::{signature::hazmat::PrehashVerifier, Signature, VerifyingKey};
-    use sha2::{Digest, Sha384};
-
-    let verifying_key = VerifyingKey::from_sec1_bytes(public_key).map_err(|_| InvalidSignature)?;
-
-    let sig = Signature::from_der(signature)
-        .or_else(|_| Signature::from_slice(signature))
-        .map_err(|_| InvalidSignature)?;
-
-    // Hash the message with SHA-384 and verify using prehash
-    let digest = Sha384::digest(message);
-    verifying_key.verify_prehash(&digest, &sig).map_err(|_| InvalidSignature)
-}
-
-/// Verify an ECDSA P-384 signature with SHA-256.
-fn verify_ecdsa_p384_sha256(
-    public_key: &[u8],
-    message: &[u8],
-    signature: &[u8],
-) -> Result<(), InvalidSignature> {
-    use p384::ecdsa::{signature::hazmat::PrehashVerifier, Signature, VerifyingKey};
-    use sha2::{Digest, Sha256};
-
-    let verifying_key = VerifyingKey::from_sec1_bytes(public_key).map_err(|_| InvalidSignature)?;
-
-    let sig = Signature::from_der(signature)
-        .or_else(|_| Signature::from_slice(signature))
-        .map_err(|_| InvalidSignature)?;
-
-    // Hash the message with SHA-256 and verify using prehash
-    let digest = Sha256::digest(message);
-    verifying_key.verify_prehash(&digest, &sig).map_err(|_| InvalidSignature)
-}
-
 /// Verify an ECDSA P-384 signature with SHA-384.
 fn verify_ecdsa_p384_sha384(
     public_key: &[u8],
@@ -603,8 +511,8 @@ mod tests {
 
     #[test]
     fn test_all_algorithms_count() {
-        // 4 ECDSA + 1 Ed25519 + 3 RSA-PSS + 3 RSA PKCS#1 = 11 total
-        assert_eq!(SUPPORTED_SIG_ALGS.all.len(), 11);
+        // 2 ECDSA (RFC 8446 compliant) + 1 Ed25519 + 3 RSA-PSS + 3 RSA PKCS#1 = 9 total
+        assert_eq!(SUPPORTED_SIG_ALGS.all.len(), 9);
     }
 
     #[test]

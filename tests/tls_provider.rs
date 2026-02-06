@@ -72,9 +72,8 @@ fn test_tls_configuration_builder() {
         .with_root_certificates(root_store)
         .with_no_client_auth();
 
-    // Verify the config was created successfully
-    assert!(!config.alpn_protocols.is_empty() || config.alpn_protocols.is_empty());
-    // Just verify it exists
+    // Verify the config was created - ALPN is empty by default when not configured
+    assert!(config.alpn_protocols.is_empty());
 }
 
 #[test]
